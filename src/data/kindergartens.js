@@ -1,13 +1,13 @@
 export const homes = {
   zhonghe: {
     label: "中和家",
-    address: "新北市中和區永和路90巷13號",
+    address: "新北市中和區永和路90巷",
     lat: 25.006109,
     lng: 121.49773,
   },
   yonghe: {
     label: "永和家",
-    address: "新北市永和區文化路144巷4號",
+    address: "新北市永和區文化路144巷",
     lat: 25.0157,
     lng: 121.5125,
   },

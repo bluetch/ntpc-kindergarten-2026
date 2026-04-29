@@ -522,14 +522,7 @@ h1 {
 }
 
 .home-settings-card fieldset:last-of-type {
-  margin-bottom: 8px;
-}
-
-.home-settings-card legend {
-  color: #a35748;
-  font-size: 13px;
-  font-weight: 900;
-  padding-right: 8px;
+  margin-bottom: 0;
 }
 
 .filters input,

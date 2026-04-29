@@ -20,6 +20,17 @@ const defaultHomeInputs = {
   },
 };
 
+const emptyHomeInputs = {
+  zhonghe: {
+    label: "",
+    address: "",
+  },
+  yonghe: {
+    label: "",
+    address: "",
+  },
+};
+
 const timelineWindows = [
   { start: "2026-04-29T09:00:00+08:00", end: "2026-04-29T23:59:59+08:00" },
   { start: "2026-04-30T10:00:00+08:00", end: "2026-05-07T16:00:00+08:00" },
@@ -127,10 +138,10 @@ const resolveHomes = (customHomes) =>
   Object.fromEntries(
     Object.entries(defaultHomeInputs).map(([key, defaultHome]) => {
       const customHome = customHomes[key] ?? defaultHome;
-      const address = customHome.address.trim() || defaultHome.address;
-      const label = customHome.label.trim() || defaultHome.label;
-      const coordinates =
-        address === homes[key].address ? { lat: homes[key].lat, lng: homes[key].lng } : { lat: null, lng: null };
+      const address = customHome.address.trim();
+      const fallbackLabel = key === "zhonghe" ? "接送地址 A" : "接送地址 B";
+      const label = customHome.label.trim() || fallbackLabel;
+      const coordinates = address === homes[key].address ? { lat: homes[key].lat, lng: homes[key].lng } : { lat: null, lng: null };
       return [key, { ...defaultHome, ...coordinates, label, address }];
     }),
   );
@@ -196,7 +207,7 @@ function useCustomHomes() {
     }));
   };
 
-  const resetHomes = () => setCustomHomes(defaultHomeInputs);
+  const resetHomes = () => setCustomHomes(emptyHomeInputs);
 
   return { customHomes, updateHome, resetHomes };
 }
@@ -465,12 +476,11 @@ function HomeSettingsCard({ customHomes, resetHomes, updateHome }) {
       <div className="mini-heading">
         <h3>接送地址</h3>
         <button type="button" onClick={resetHomes}>
-          還原
+          清除
         </button>
       </div>
       {Object.entries(customHomes).map(([key, home]) => (
         <fieldset key={key}>
-          <legend>{key === "zhonghe" ? "預設中和家" : "預設永和家"}</legend>
           <label>
             名稱
             <input value={home.label} onChange={(event) => updateHome(key, "label", event.target.value)} />
@@ -481,9 +491,6 @@ function HomeSettingsCard({ customHomes, resetHomes, updateHome }) {
           </label>
         </fieldset>
       ))}
-      <p className="field-note">
-        名稱與導航連結會即時更新；自訂地址的精準距離需開 Google Maps 路線確認。
-      </p>
     </section>
   );
 }

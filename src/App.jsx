@@ -5,6 +5,7 @@ import {
   commonInfo,
   homes,
   kindergartens,
+  sources,
 } from "./data/kindergartens.js";
 
 const HOME_STORAGE_KEY = "ntpc-kindergarten-picker-homes";
@@ -291,6 +292,9 @@ function App() {
   if (hash === "#/guide") {
     return <GuidePage />;
   }
+  if (hash === "#/sources") {
+    return <SourcesPage />;
+  }
   const detailMatch = hash.match(/^#\/kindergarten\/(.+)$/);
   const detailSchool = detailMatch
     ? enrichedSchools.find((item) => item.id === decodeURIComponent(detailMatch[1]))
@@ -323,7 +327,10 @@ export function Header() {
       </a>
       <nav>
         <a href="#list">清單</a>
-        <a href="#/guide">挑選指南</a>
+        <a href="#/sources">資料來源</a>
+        <a className="secondary-action" href="https://kid123.ntpc.edu.tw/" target="_blank" rel="noreferrer">
+          官方招生網站
+        </a>
         <a href="https://github.com/bluetch/ntpc-kindergarten-2026" target="_blank" rel="noreferrer">
           GitHub
         </a>
@@ -381,16 +388,13 @@ function ListPage({ activeHomes, customHomes, enrichedSchools, resetHomes, updat
         <section className="hero">
           <div className="hero-copy">
             <p className="eyebrow">新北市 115 學年度</p>
-            <h1>中永和幼兒園抽籤清單</h1>
+            <h1>中永和幼兒園清單</h1>
             <p>先看缺額、距離和接送成本，再決定要不要把時間花在進一步比較。</p>
-            <div className="hero-actions">
+            {/* <div className="hero-actions">
               <a className="primary-action" href="#list">
                 看清單
               </a>
-              <a className="secondary-action" href="https://kid123.ntpc.edu.tw/" target="_blank" rel="noreferrer">
-                官方招生網站
-              </a>
-            </div>
+            </div> */}
           </div>
           <div className="play-scene" aria-hidden="true">
             <div className="sun" />
@@ -477,11 +481,7 @@ function ListPage({ activeHomes, customHomes, enrichedSchools, resetHomes, updat
 
           <section className="results" aria-label="幼兒園清單">
             <div className="section-heading">
-              <div>
-                <p className="eyebrow">符合條件</p>
-                <h2>幼兒園一覽</h2>
-              </div>
-              <p>{filtered.length} 間</p>
+              <p>符合條件 {filtered.length} 間</p>
             </div>
 
             <div className="school-grid">
@@ -614,6 +614,11 @@ function SchoolCard({ school, classType, active, onOpenMap }) {
         <div>
           <h3>{school.name}</h3>
           <p className="address">{school.address}</p>
+          {Array.isArray(school.punishRecord) && (
+            <p className={`punish-badge ${school.punishRecord.length === 0 ? "is-zero" : ""}`}>
+              裁罰紀錄: {school.punishRecord.length}
+            </p>
+          )}
         </div>
         <div className="metrics">
           <span>
@@ -795,6 +800,32 @@ function GuidePage() {
               </div>
             </div>
           </InfoBlock>
+        </section>
+      </main>
+    </>
+  );
+}
+
+function SourcesPage() {
+  return (
+    <>
+      <Header />
+      <main className="guide">
+        <a className="back-link" href="#/">
+          回清單
+        </a>
+        <section className="info-block">
+          <h2>資料來源</h2>
+          <div className="sources">
+            <p>本專案幼兒園資料與相關資訊，主要參考以下來源彙整：</p>
+            <div style={{ marginTop: '14px' }}>
+              {sources.map((source) => (
+                <a key={source.url} href={source.url} target="_blank" rel="noreferrer">
+                  {source.label}
+                </a>
+              ))}
+            </div>
+          </div>
         </section>
       </main>
     </>

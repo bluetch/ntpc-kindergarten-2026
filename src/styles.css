@@ -658,6 +658,22 @@ h1 {
   color: var(--muted);
 }
 
+.punish-badge {
+  display: inline-block;
+  margin-top: 6px;
+  padding: 4px 8px;
+  background: #ffdce0;
+  color: #af2232;
+  border-radius: 6px;
+  font-size: 13px;
+  font-weight: 900;
+}
+
+.punish-badge.is-zero {
+  background: #e5f1dc;
+  color: #315b2c;
+}
+
 .address {
   margin: 4px 0 0;
   font-size: 14px;

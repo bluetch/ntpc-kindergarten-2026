@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
+import { DetailPage } from "./DetailPage.jsx";
 import {
   admissionTimeline,
   commonInfo,
@@ -9,22 +10,22 @@ import {
 const HOME_STORAGE_KEY = "ntpc-kindergarten-picker-homes";
 
 const defaultHomeInputs = {
-  zhonghe: {
-    label: homes.zhonghe.label,
-    address: homes.zhonghe.address,
+  homeA: {
+    label: homes.homeA.label,
+    address: homes.homeA.address,
   },
-  yonghe: {
-    label: homes.yonghe.label,
-    address: homes.yonghe.address,
+  homeB: {
+    label: homes.homeB.label,
+    address: homes.homeB.address,
   },
 };
 
 const emptyHomeInputs = {
-  zhonghe: {
+  homeA: {
     label: "",
     address: "",
   },
-  yonghe: {
+  homeB: {
     label: "",
     address: "",
   },
@@ -95,21 +96,30 @@ const guideReferences = [
   },
 ];
 
-const googleMapUrl = (destination) =>
-  `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(destination)}`;
+const cleanSchoolName = (name) => name.split(/[（(]/)[0].trim();
 
-const directionsUrl = (origin, destination, mode = "driving") =>
-  `https://www.google.com/maps/dir/?api=1&origin=${encodeURIComponent(
+export const googleMapUrl = (school) => {
+  if (school.mapUrl) return school.mapUrl;
+  const query = `${cleanSchoolName(school.name)} ${school.address}`;
+  return `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(query)}`;
+};
+
+export const directionsUrl = (origin, school, mode = "driving") => {
+  const query = `${cleanSchoolName(school.name)} ${school.address}`;
+  return `https://www.google.com/maps/dir/?api=1&origin=${encodeURIComponent(
     origin,
-  )}&destination=${encodeURIComponent(destination)}&travelmode=${mode}`;
+  )}&destination=${encodeURIComponent(query)}&travelmode=${mode}`;
+};
 
-const mapEmbedUrl = (destination) =>
-  `https://www.google.com/maps?q=${encodeURIComponent(destination)}&output=embed`;
+export const mapEmbedUrl = (school) => {
+  const query = `${cleanSchoolName(school.name)} ${school.address}`;
+  return `https://www.google.com/maps?q=${encodeURIComponent(query)}&output=embed`;
+};
 
 const totalVacancies = (school) =>
   school.classes.reduce((sum, item) => sum + (Number.isFinite(item.vacancies) ? item.vacancies : 0), 0);
 
-const classLabel = (school) =>
+export const classLabel = (school) =>
   school.classes
     .map((item) => `${item.name} ${Number.isFinite(item.vacancies) ? item.vacancies : "待查"}`)
     .join(" / ");
@@ -159,23 +169,18 @@ const haversineKm = (a, b) => {
   return radius * 2 * Math.atan2(Math.sqrt(h), Math.sqrt(1 - h));
 };
 
-const formatDistance = (km) => (Number.isFinite(km) ? `${km.toFixed(km < 1 ? 2 : 1)} km` : "開 Maps");
+export const formatDistance = (km) => (Number.isFinite(km) ? `${km.toFixed(km < 1 ? 2 : 1)} km` : "開 Maps");
 
 const formatMinutes = (minutes) => `${Math.max(1, Math.round(minutes))}分`;
 
-const formatMinuteRange = ([min, max]) => {
-  const low = Math.max(1, Math.round(min));
-  const high = Math.max(low, Math.round(max));
-  return low === high ? formatMinutes(low) : `${low}-${high}分`;
-};
-
 const estimateCommuteTimes = (km) => {
   if (!Number.isFinite(km)) return null;
-  const roadKm = Math.max(km * 1.35, km + 0.25);
+  const roadKm = km * 1.3;
   return {
-    car: [roadKm * 2.5 + 3, roadKm * 4.3 + 8],
-    scooter: [roadKm * 2.3 + 2, roadKm * 3.8 + 5],
-    transit: [roadKm * 3.4 + 10, roadKm * 6 + 18],
+    car: roadKm * 2.2 + 0.5,
+    scooter: roadKm * 2.0 + 0.3,
+    walking: km * 13,
+    transit: roadKm * 4 + 8,
   };
 };
 
@@ -184,8 +189,8 @@ const distanceSortValue = (km) => (Number.isFinite(km) ? km : Number.POSITIVE_IN
 const vacancySortValue = (count) => (Number.isFinite(count) ? count : Number.NEGATIVE_INFINITY);
 
 const getHomeDistance = (school, homeKey) => {
-  if (homeKey === "zhonghe") return school.homeDistances.zhonghe;
-  if (homeKey === "yonghe") return school.homeDistances.yonghe;
+  if (homeKey === "homeA") return school.homeDistances.homeA;
+  if (homeKey === "homeB") return school.homeDistances.homeB;
   return school.nearestKm;
 };
 
@@ -194,7 +199,7 @@ const resolveHomes = (customHomes) =>
     Object.entries(defaultHomeInputs).map(([key, defaultHome]) => {
       const customHome = customHomes[key] ?? defaultHome;
       const address = customHome.address.trim();
-      const fallbackLabel = key === "zhonghe" ? "接送地址 A" : "接送地址 B";
+      const fallbackLabel = key === "homeA" ? "接送地址 A" : "接送地址 B";
       const label = customHome.label.trim() || fallbackLabel;
       const coordinates = address === homes[key].address ? { lat: homes[key].lat, lng: homes[key].lng } : { lat: null, lng: null };
       return [key, { ...defaultHome, ...coordinates, label, address }];
@@ -202,26 +207,26 @@ const resolveHomes = (customHomes) =>
   );
 
 const enrichSchool = (school, activeHomes) => {
-  const zhongheKm = haversineKm(activeHomes.zhonghe, school);
-  const yongheKm = haversineKm(activeHomes.yonghe, school);
+  const homeAKm = haversineKm(activeHomes.homeA, school);
+  const homeBKm = haversineKm(activeHomes.homeB, school);
   const availableDistances = [
-    { key: "zhonghe", label: activeHomes.zhonghe.label, distance: zhongheKm },
-    { key: "yonghe", label: activeHomes.yonghe.label, distance: yongheKm },
+    { key: "homeA", label: activeHomes.homeA.label, distance: homeAKm },
+    { key: "homeB", label: activeHomes.homeB.label, distance: homeBKm },
   ].filter((item) => Number.isFinite(item.distance));
   const nearest = availableDistances.sort((a, b) => a.distance - b.distance)[0] ?? null;
   return {
     ...school,
     vacancies: totalVacancies(school),
     homeDistances: {
-      zhonghe: zhongheKm,
-      yonghe: yongheKm,
+      homeA: homeAKm,
+      homeB: homeBKm,
     },
     homeLabels: {
-      zhonghe: activeHomes.zhonghe.label,
-      yonghe: activeHomes.yonghe.label,
+      homeA: activeHomes.homeA.label,
+      homeB: activeHomes.homeB.label,
     },
-    zhongheKm,
-    yongheKm,
+    homeAKm,
+    homeBKm,
     nearestKm: nearest?.distance ?? null,
     nearestHomeKey: nearest?.key ?? null,
     nearestHome: nearest?.label ?? "自訂地址",
@@ -266,7 +271,11 @@ function useCustomHomes() {
     }));
   };
 
-  const resetHomes = () => setCustomHomes(emptyHomeInputs);
+  const resetHomes = () =>
+    setCustomHomes({
+      homeA: { label: "", address: "" },
+      homeB: { label: "", address: "" },
+    });
 
   return { customHomes, updateHome, resetHomes };
 }
@@ -283,12 +292,12 @@ function App() {
     return <GuidePage />;
   }
   const detailMatch = hash.match(/^#\/kindergarten\/(.+)$/);
-  const school = detailMatch
+  const detailSchool = detailMatch
     ? enrichedSchools.find((item) => item.id === decodeURIComponent(detailMatch[1]))
     : null;
 
-  if (school) {
-    return <DetailPage school={school} activeHomes={activeHomes} />;
+  if (detailSchool) {
+    return <DetailPage school={detailSchool} activeHomes={activeHomes} />;
   }
 
   return (
@@ -302,7 +311,7 @@ function App() {
   );
 }
 
-function Header() {
+export function Header() {
   return (
     <header className="site-header">
       <a className="brand" href="#/" aria-label="回清單首頁">
@@ -437,8 +446,8 @@ function ListPage({ activeHomes, customHomes, enrichedSchools, resetHomes, updat
               距離基準
               <select value={homeKey} onChange={(event) => setHomeKey(event.target.value)}>
                 <option value="nearest">離任一家最近</option>
-                <option value="zhonghe">{activeHomes.zhonghe.label}</option>
-                <option value="yonghe">{activeHomes.yonghe.label}</option>
+                <option value="homeA">{activeHomes.homeA.label}</option>
+                <option value="homeB">{activeHomes.homeB.label}</option>
               </select>
             </label>
             <label>
@@ -495,8 +504,6 @@ function ListPage({ activeHomes, customHomes, enrichedSchools, resetHomes, updat
           onClose={() => setIsMapOpen(false)}
           school={selected}
         />
-
-        <GuideTeaser />
       </main>
     </>
   );
@@ -524,16 +531,16 @@ function MapDrawer({ activeHomes, isOpen, onClose, school }) {
           </button>
         </div>
         <p className="map-drawer-address">{school.address}</p>
-        <iframe title={`${school.name} Google Map`} src={mapEmbedUrl(school.address)} loading="lazy" />
+        <iframe title={`${school.name} Google Map`} src={mapEmbedUrl(school)} loading="lazy" />
         <div className="map-actions">
-          <a href={googleMapUrl(school.address)} target="_blank" rel="noreferrer">
+          <a href={googleMapUrl(school)} target="_blank" rel="noreferrer">
             Google Maps
           </a>
-          <a href={directionsUrl(activeHomes.zhonghe.address, school.address)} target="_blank" rel="noreferrer">
-            {activeHomes.zhonghe.label}路線
+          <a href={directionsUrl(activeHomes.homeA.address, school)} target="_blank" rel="noreferrer">
+            {activeHomes.homeA.label}路線
           </a>
-          <a href={directionsUrl(activeHomes.yonghe.address, school.address)} target="_blank" rel="noreferrer">
-            {activeHomes.yonghe.label}路線
+          <a href={directionsUrl(activeHomes.homeB.address, school)} target="_blank" rel="noreferrer">
+            {activeHomes.homeB.label}路線
           </a>
         </div>
       </aside>
@@ -578,7 +585,7 @@ function HomeSettingsCard({ customHomes, resetHomes, updateHome }) {
             <input
               value={home.label}
               onChange={(event) => updateHome(key, "label", event.target.value)}
-              placeholder={key === "zhonghe" ? "中和家" : "永和家"}
+              placeholder={key === "homeA" ? "中和家" : "永和家"}
             />
           </label>
           <label>
@@ -586,7 +593,7 @@ function HomeSettingsCard({ customHomes, resetHomes, updateHome }) {
             <input
               value={home.address}
               onChange={(event) => updateHome(key, "address", event.target.value)}
-              placeholder={key === "zhonghe" ? "新北市中和區永和路90巷" : "新北市永和區文化路144巷"}
+              placeholder={key === "homeA" ? "新北市中和區永和路90巷" : "新北市永和區文化路144巷"}
             />
           </label>
         </fieldset>
@@ -598,18 +605,22 @@ function HomeSettingsCard({ customHomes, resetHomes, updateHome }) {
 function SchoolCard({ school, classType, active, onOpenMap }) {
   const vacancyCount = classVacancies(school, classType);
   return (
-    <article className={`school-card ${active ? "is-active" : ""}`} onClick={onOpenMap}>
+    <article className={`school-card ${active ? "is-active" : ""}`}>
       <div className="card-topline">
         <span>{school.district}</span>
         <span>{school.type}</span>
       </div>
-      <h3>{school.name}</h3>
-      <p className="address">{school.address}</p>
-      <div className="metrics">
-        <span>
-          <strong>{Number.isFinite(vacancyCount) ? vacancyCount : "待查"}</strong>
-          {classVacancyLabel(classType)}
-        </span>
+      <div className="card-title">
+        <div>
+          <h3>{school.name}</h3>
+          <p className="address">{school.address}</p>
+        </div>
+        <div className="metrics">
+          <span>
+            {classVacancyLabel(classType)}
+            <strong>{Number.isFinite(vacancyCount) ? vacancyCount : "待查"}</strong>
+          </span>
+        </div>
       </div>
       <HomeDistanceList school={school} />
       <div className="card-actions">
@@ -649,184 +660,23 @@ function HomeDistanceList({ school }) {
         return (
           <article className={isNearest ? "is-nearest" : ""} key={key}>
             <div className="home-distance-main">
-              <span>{label}</span>
+              <span>從 {label} 接送</span>
               <strong>{formatDistance(distance)}</strong>
             </div>
-            {estimates ? (
+            {/* estimates ? (
               <div className="route-estimates">
-                <span>汽 {formatMinuteRange(estimates.car)}</span>
-                <span>機 {formatMinuteRange(estimates.scooter)}</span>
-                <span>公 {formatMinuteRange(estimates.transit)}</span>
+                <span>汽 {formatMinutes(estimates.car)}</span>
+                <span>機 {formatMinutes(estimates.scooter)}</span>
+                <span>步 {formatMinutes(estimates.walking)}</span>
+                <span>公 {formatMinutes(estimates.transit)}</span>
               </div>
             ) : (
               <p>請開 Maps 看即時路程</p>
-            )}
+            ) */}
           </article>
         );
       })}
     </div>
-  );
-}
-
-function DetailPage({ school, activeHomes }) {
-  return (
-    <>
-      <Header />
-      <main className="detail-page">
-        <a className="back-link" href="#/">
-          回清單
-        </a>
-        <section className="detail-hero">
-          <div>
-            <p className="eyebrow">
-              {school.district} · {school.type}
-            </p>
-            <h1>{school.name}</h1>
-            <p>{school.address}</p>
-          </div>
-          <div className="detail-score">
-            <strong>{school.vacancies || "待查"}</strong>
-            <span>總缺額</span>
-          </div>
-        </section>
-
-        <section className="detail-layout">
-          <div className="detail-main">
-            <InfoBlock title="基本資訊">
-              <dl className="info-list">
-                <div>
-                  <dt>園所編號</dt>
-                  <dd>{school.code}</dd>
-                </div>
-                <div>
-                  <dt>班別缺額</dt>
-                  <dd>{classLabel(school)}</dd>
-                </div>
-                <div>
-                  <dt>電話</dt>
-                  <dd>{school.phone || "待補"}</dd>
-                </div>
-                <div>
-                  <dt>Google 評價</dt>
-                  <dd>{school.googleRating ?? "待人工補入，請先外開 Google Maps 查看最新評論"}</dd>
-                </div>
-              </dl>
-            </InfoBlock>
-
-            <InfoBlock title="距離與接送">
-              <div className="commute-grid">
-                <CommuteCard school={school} home={activeHomes.zhonghe} distance={school.homeDistances.zhonghe} />
-                <CommuteCard school={school} home={activeHomes.yonghe} distance={school.homeDistances.yonghe} />
-              </div>
-              <p className="field-note">
-                接送請實際用平日 07:30-08:30、16:00-18:00 測一次路線。巷弄型園所要特別看臨停、雨天走路距離與娃娃車規定。
-              </p>
-            </InfoBlock>
-
-            <InfoBlock title="上下課、費用、教學模式">
-              <ul className="plain-list">
-                <li>{commonInfo.schedule}</li>
-                <li>{school.type === "非營利" ? commonInfo.nonprofitFee : commonInfo.publicFee}</li>
-                <li>{commonInfo.teaching}</li>
-              </ul>
-            </InfoBlock>
-
-            <InfoBlock title="爸媽實地觀察重點">
-              <ul className="check-list">
-                <li>老師跟孩子說話的語氣：是否蹲下來、能等待孩子回答。</li>
-                <li>孩子情緒處理：哭鬧、衝突、如廁事故時怎麼陪伴。</li>
-                <li>作息與戶外時間：每天戶外活動多久，雨天備案是什麼。</li>
-                <li>午睡與餐點：是否強迫吃完、午睡不睡怎麼安排。</li>
-                <li>親師溝通：聯絡簿、照片、突發事件通知速度。</li>
-                <li>安全動線：門禁、接送身分確認、樓梯與遊具維護。</li>
-                <li>課後留園：名額、費用、最晚接回時間、寒暑假安排。</li>
-              </ul>
-            </InfoBlock>
-
-            <InfoBlock title="備註">
-              <ul className="plain-list">
-                {school.notes.map((note) => (
-                  <li key={note}>{note}</li>
-                ))}
-              </ul>
-            </InfoBlock>
-          </div>
-
-          <aside className="detail-side">
-            <iframe title={`${school.name} Google Map`} src={mapEmbedUrl(school.address)} loading="lazy" />
-            <a className="primary-action full" href={googleMapUrl(school.address)} target="_blank" rel="noreferrer">
-              開啟 Google Maps / 評價
-            </a>
-            <a
-              className="secondary-action full"
-              href={directionsUrl(activeHomes.zhonghe.address, school.address)}
-              target="_blank"
-              rel="noreferrer"
-            >
-              從{activeHomes.zhonghe.label}導航
-            </a>
-            <a
-              className="secondary-action full"
-              href={directionsUrl(activeHomes.yonghe.address, school.address)}
-              target="_blank"
-              rel="noreferrer"
-            >
-              從{activeHomes.yonghe.label}導航
-            </a>
-          </aside>
-        </section>
-      </main>
-    </>
-  );
-}
-
-function InfoBlock({ title, children }) {
-  return (
-    <section className="info-block">
-      <h2>{title}</h2>
-      {children}
-    </section>
-  );
-}
-
-function CommuteCard({ home, school, distance }) {
-  const walkHint = !Number.isFinite(distance)
-    ? "自訂地址請用 Google Maps 看即時車程"
-    : distance <= 1.2
-      ? "可評估步行或推車"
-      : distance <= 2.5
-        ? "騎車/開車較穩"
-        : "需抓尖峰車程";
-  return (
-    <article className="commute-card">
-      <h3>{home.label}</h3>
-      <strong>{formatDistance(distance)}</strong>
-      <p>{walkHint}</p>
-      <a href={directionsUrl(home.address, school.address)} target="_blank" rel="noreferrer">
-        開路線
-      </a>
-    </article>
-  );
-}
-
-function GuideTeaser() {
-  return (
-    <section className="guide" id="guide">
-      <div className="section-heading">
-        <div>
-          <p className="eyebrow">新手爸媽快速版</p>
-          <h2>把討論重點整理成單獨一頁</h2>
-        </div>
-      </div>
-
-      <div className="sources guide-cta">
-        <h3>挑選指南</h3>
-        <p>把類型差異、參觀重點、紅旗和排志願邏輯放在同一頁，方便一起看。</p>
-        <div>
-          <a href="#/guide">開啟挑選指南頁</a>
-        </div>
-      </div>
-    </section>
   );
 }
 

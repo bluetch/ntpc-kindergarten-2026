@@ -113,6 +113,34 @@ select {
   color: #3b352f;
   cursor: pointer;
   font-weight: 800;
+  transition:
+    transform 0.1s ease,
+    box-shadow 0.1s ease,
+    background-color 0.1s ease;
+}
+
+.site-header nav a:hover,
+.primary-action:hover,
+.secondary-action:hover,
+.card-actions a:hover,
+.card-actions button:hover,
+.map-actions a:hover,
+.commute-card a:hover {
+  background-color: #796f63;
+  color: white;
+  transform: translate(-1px, -1px);
+  box-shadow: 4px 4px 0 #3b352f;
+}
+
+.site-header nav a:active,
+.primary-action:active,
+.secondary-action:active,
+.card-actions a:active,
+.card-actions button:active,
+.map-actions a:active,
+.commute-card a:active {
+  transform: translate(1px, 1px);
+  box-shadow: 2px 2px 0 #3b352f;
 }
 
 .site-header nav a {
@@ -520,6 +548,21 @@ h1 {
   font-size: 13px;
   font-weight: 900;
   padding: 5px 10px;
+  transition:
+    transform 0.1s ease,
+    box-shadow 0.1s ease,
+    background-color 0.1s ease;
+}
+
+.mini-heading button:hover {
+  background-color: #ffffff;
+  transform: translate(-1px, -1px);
+  box-shadow: 3px 3px 0 #3b352f;
+}
+
+.mini-heading button:active {
+  transform: translate(1px, 1px);
+  box-shadow: 1px 1px 0 #3b352f;
 }
 
 .home-settings-card fieldset {
@@ -563,7 +606,7 @@ h1 {
   font-size: clamp(28px, 4vw, 42px);
 }
 
-.section-heading > p {
+.section-heading>p {
   margin: 0;
   color: var(--muted);
   font-size: 15px;
@@ -579,19 +622,7 @@ h1 {
   display: flex;
   min-height: 270px;
   flex-direction: column;
-  cursor: pointer;
   padding: 18px;
-  transition:
-    transform 0.18s ease,
-    border-color 0.18s ease,
-    box-shadow 0.18s ease;
-}
-
-.school-card:hover,
-.school-card.is-active {
-  border-color: #3b352f;
-  box-shadow: 6px 6px 0 #3b352f;
-  transform: translate(-2px, -2px);
 }
 
 .card-topline {
@@ -610,7 +641,7 @@ h1 {
   font-weight: 900;
 }
 
-.card-topline span + span {
+.card-topline span+span {
   background: #e8f2fb;
   color: #285473;
 }
@@ -628,24 +659,34 @@ h1 {
 }
 
 .address {
-  min-height: 48px;
+  margin: 4px 0 0;
+  font-size: 14px;
+}
+
+.card-title {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 12px;
+  margin-bottom: 8px;
 }
 
 .metrics {
-  display: grid;
-  grid-template-columns: 1fr;
+  display: flex;
+  flex-direction: column;
   gap: 8px;
-  margin: 8px 0;
+  flex-shrink: 0;
 }
 
 .metrics span {
-  min-height: 74px;
+  min-width: 84px;
   border-radius: 14px;
   background: #fff5d8;
-  padding: 10px;
+  padding: 8px 10px;
   color: var(--muted);
-  font-size: 12px;
+  font-size: 11px;
   font-weight: 800;
+  text-align: center;
 }
 
 .metrics strong {
@@ -656,6 +697,7 @@ h1 {
 
 .home-distance-list {
   display: grid;
+  grid-template-columns: repeat(2, 1fr);
   gap: 8px;
   margin: 4px 0 0;
 }
@@ -672,10 +714,8 @@ h1 {
 }
 
 .home-distance-list article.is-nearest {
-  border-color: #3b352f;
-  background: #fff0dc;
-  box-shadow: 3px 3px 0 #3b352f;
-  color: #3b352f;
+  border-color: #285473;
+  background-color: #e8f2fb;
 }
 
 .home-distance-main {
@@ -704,11 +744,6 @@ h1 {
   color: #285473;
   font-size: 12px;
   padding: 4px 7px;
-}
-
-.home-distance-list article.is-nearest .route-estimates span {
-  background: var(--coral);
-  color: #3b352f;
 }
 
 .home-distance-list p {
@@ -781,6 +816,14 @@ h1 {
   padding: 8px 12px;
   font-size: 14px;
   font-weight: 900;
+  transition:
+    transform 0.1s ease,
+    background-color 0.1s ease;
+}
+
+.sources a:hover {
+  background: #d4e8c5;
+  transform: translateY(-1px);
 }
 
 .detail-page {
@@ -809,7 +852,7 @@ h1 {
 
 .detail-hero h1 {
   max-width: 920px;
-  font-size: clamp(34px, 5vw, 58px);
+  font-size: clamp(20px, 3vw, 36px);
 }
 
 .detail-hero p:not(.eyebrow) {
@@ -1011,6 +1054,7 @@ h1 {
 }
 
 @media (max-width: 1180px) {
+
   .layout,
   .detail-layout {
     grid-template-columns: 240px minmax(0, 1fr);
@@ -1026,6 +1070,7 @@ h1 {
 }
 
 @media (max-width: 840px) {
+
   .site-header,
   .section-heading {
     align-items: flex-start;
@@ -1106,7 +1151,8 @@ h1 {
   }
 
   .metrics {
-    grid-template-columns: 1fr;
+    flex-direction: row;
+    gap: 6px;
   }
 
   .school-card {

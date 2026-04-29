@@ -9,6 +9,13 @@ import {
 } from "./App.jsx";
 
 export function DetailPage({ school, activeHomes }) {
+  const feeInfo =
+    school.type === "非營利"
+      ? commonInfo.nonprofitFee
+      : school.type === "準公共"
+        ? commonInfo.quasiPublicFee
+        : commonInfo.publicFee;
+
   return (
     <>
       <Header />
@@ -51,7 +58,7 @@ export function DetailPage({ school, activeHomes }) {
             <InfoBlock title="上下課、費用、教學模式">
               <ul className="plain-list">
                 <li>{commonInfo.schedule}</li>
-                <li>{school.type === "非營利" ? commonInfo.nonprofitFee : commonInfo.publicFee}</li>
+                <li>{feeInfo}</li>
                 <li>{commonInfo.teaching}</li>
               </ul>
             </InfoBlock>

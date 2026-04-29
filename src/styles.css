@@ -712,33 +712,8 @@ h1 {
 }
 
 .home-distance-list {
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 8px;
-  margin: 4px 0 0;
-}
-
-.home-distance-list article {
-  min-height: 74px;
-  border: 2px solid var(--line);
-  border-radius: 12px;
-  background: white;
-  padding: 8px 10px;
+  margin: 4px 0 0 -16px;
   color: var(--muted);
-  font-size: 13px;
-  font-weight: 900;
-}
-
-.home-distance-list article.is-nearest {
-  border-color: #285473;
-  background-color: #e8f2fb;
-}
-
-.home-distance-main {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 12px;
 }
 
 .home-distance-list strong {

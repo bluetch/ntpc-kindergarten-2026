@@ -99,6 +99,13 @@ const guideReferences = [
 
 const cleanSchoolName = (name) => name.split(/[（(]/)[0].trim();
 
+const schoolCategoryLabel = (type) => {
+  if (["公立專設", "國小附幼", "國中附幼"].includes(type)) return "公立";
+  if (type === "非營利") return "非營利";
+  if (type === "準公共") return "準公共";
+  return "私立";
+};
+
 export const googleMapUrl = (school) => {
   if (school.mapUrl) return school.mapUrl;
   const query = `${cleanSchoolName(school.name)} ${school.address}`;
@@ -436,6 +443,7 @@ function ListPage({ activeHomes, customHomes, enrichedSchools, resetHomes, updat
                 <option>國小附幼</option>
                 <option>國中附幼</option>
                 <option>非營利</option>
+                <option>準公共</option>
               </select>
             </label>
             <label>
@@ -608,7 +616,7 @@ function SchoolCard({ school, classType, active, onOpenMap }) {
     <article className={`school-card ${active ? "is-active" : ""}`}>
       <div className="card-topline">
         <span>{school.district}</span>
-        <span>{school.type}</span>
+        <span>{schoolCategoryLabel(school.type)}</span>
       </div>
       <div className="card-title">
         <div>
@@ -657,31 +665,18 @@ function HomeDistanceList({ school }) {
   if (entries.length < 2) return null;
 
   return (
-    <div className="home-distance-list" aria-label="接送地址距離">
+    <ul className="home-distance-list" aria-label="接送地址距離">
       {entries.map(([key, label]) => {
         const distance = school.homeDistances[key];
         const isNearest = key === school.nearestHomeKey && Number.isFinite(distance);
         const estimates = estimateCommuteTimes(distance);
         return (
-          <article className={isNearest ? "is-nearest" : ""} key={key}>
-            <div className="home-distance-main">
-              <span>從 {label} 接送</span>
-              <strong>{formatDistance(distance)}</strong>
-            </div>
-            {/* estimates ? (
-              <div className="route-estimates">
-                <span>汽 {formatMinutes(estimates.car)}</span>
-                <span>機 {formatMinutes(estimates.scooter)}</span>
-                <span>步 {formatMinutes(estimates.walking)}</span>
-                <span>公 {formatMinutes(estimates.transit)}</span>
-              </div>
-            ) : (
-              <p>請開 Maps 看即時路程</p>
-            ) */}
-          </article>
+            <li className="home-distance-main" key={key}>
+              <span>距離 {label}: <strong>{formatDistance(distance)}</strong></span>
+            </li>
         );
       })}
-    </div>
+    </ul>
   );
 }
 

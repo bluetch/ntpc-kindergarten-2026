@@ -504,6 +504,29 @@ h1 {
   padding: 18px;
 }
 
+.filters {
+  max-height: calc(100vh - 116px);
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  scrollbar-color: var(--coral) #fff5d8;
+  scrollbar-width: thin;
+}
+
+.filters::-webkit-scrollbar {
+  width: 10px;
+}
+
+.filters::-webkit-scrollbar-track {
+  border-radius: 999px;
+  background: #fff5d8;
+}
+
+.filters::-webkit-scrollbar-thumb {
+  border: 2px solid #fff5d8;
+  border-radius: 999px;
+  background: var(--coral);
+}
+
 .filters h2,
 .map-sticky h2,
 .info-block h2,
@@ -514,16 +537,16 @@ h1 {
 
 .filters label {
   display: grid;
-  gap: 6px;
-  margin: 0 0 12px;
+  gap: 5px;
+  margin: 0 0 10px;
   color: var(--muted);
   font-size: 13px;
   font-weight: 900;
 }
 
 .home-settings-card {
-  margin-top: 18px;
-  padding: 14px;
+  margin-top: 14px;
+  padding: 12px;
   background: #fff5d8;
 }
 
@@ -532,7 +555,7 @@ h1 {
   align-items: center;
   justify-content: space-between;
   gap: 10px;
-  margin-bottom: 12px;
+  margin-bottom: 8px;
 }
 
 .mini-heading h3 {
@@ -554,10 +577,10 @@ h1 {
 }
 
 .home-settings-card fieldset {
-  margin: 0 0 14px;
+  margin: 0 0 10px;
   border: 0;
   border-top: 2px dashed rgba(59, 53, 47, 0.22);
-  padding: 12px 0 0;
+  padding: 10px 0 0;
 }
 
 .home-settings-card fieldset:last-of-type {
@@ -574,17 +597,18 @@ h1 {
 .filters input,
 .filters select {
   width: 100%;
-  min-height: 42px;
+  min-height: 38px;
   border: 2px solid var(--line);
   border-radius: 12px;
   background: white;
   color: var(--ink);
-  padding: 8px 10px;
+  padding: 7px 10px;
 }
 
 .field-note {
   color: var(--muted);
   font-size: 13px;
+  margin: 8px 0;
 }
 
 .section-heading {
@@ -995,6 +1019,8 @@ h1 {
 
   .filters,
   .detail-side {
+    max-height: none;
+    overflow: visible;
     position: static;
   }
 

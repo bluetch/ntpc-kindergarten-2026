@@ -4,7 +4,6 @@ import {
   commonInfo,
   homes,
   kindergartens,
-  sources,
 } from "./data/kindergartens.js";
 
 const HOME_STORAGE_KEY = "ntpc-kindergarten-picker-homes";
@@ -45,6 +44,39 @@ const timelineStatusLabels = {
   current: "進行中",
   future: "未開始",
 };
+
+const guideReferences = [
+  {
+    label: "新北市公立及非營利幼兒園招生網站",
+    url: "https://kid123.ntpc.edu.tw/",
+    note: "看抽籤、缺額、資格與報到時程。",
+  },
+  {
+    label: "教育部：0-6歲國家一起養政策",
+    url: "https://www.edu.tw/News_Content4.aspx?n=D33B55D537402BAA&s=1F066099DDDA393B&sms=954974C68391B710",
+    note: "看補助、平價教保與 2-6 歲入園政策。",
+  },
+  {
+    label: "教育部：非營利幼兒園每月費用上限說明",
+    url: "https://www.edu.tw/News_Content.aspx?n=9E7AC85F1954DDA8&s=728F26CEC689313F",
+    note: "看非營利的定位與家長負擔。",
+  },
+  {
+    label: "教育部：準公共幼兒園政策說明",
+    url: "https://www.edu.tw/News_Content.aspx?n=9E7AC85F1954DDA8&s=95DED5DF14CE9352",
+    note: "看準公共制度與費用概念。",
+  },
+  {
+    label: "親子天下：幼兒園怎麼選？4 步驟",
+    url: "https://site.parenting.com.tw/home/school_preschool_info-1398",
+    note: "看參觀流程、觀察重點與孩子適應。",
+  },
+  {
+    label: "Kindie：公立、非營利、準公共、私立比較",
+    url: "https://kindie.tw/guides/preschool-types",
+    note: "看類型差異、時段與收費範圍。",
+  },
+];
 
 const googleMapUrl = (destination) =>
   `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(destination)}`;
@@ -220,6 +252,9 @@ function App() {
     () => kindergartens.map((school) => enrichSchool(school, activeHomes)),
     [activeHomes],
   );
+  if (hash === "#/guide") {
+    return <GuidePage />;
+  }
   const detailMatch = hash.match(/^#\/kindergarten\/(.+)$/);
   const school = detailMatch
     ? enrichedSchools.find((item) => item.id === decodeURIComponent(detailMatch[1]))
@@ -252,7 +287,7 @@ function Header() {
       </a>
       <nav>
         <a href="#list">清單</a>
-        <a href="#guide">挑選指南</a>
+        <a href="#/guide">挑選指南</a>
         <a href="https://github.com/bluetch" target="_blank" rel="noreferrer">
           GitHub
         </a>
@@ -443,7 +478,7 @@ function ListPage({ activeHomes, customHomes, enrichedSchools, resetHomes, updat
           </aside>
         </section>
 
-        <GuideSection />
+        <GuideTeaser />
       </main>
     </>
   );
@@ -696,50 +731,147 @@ function CommuteCard({ home, school, distance }) {
   );
 }
 
-function GuideSection() {
+function GuideTeaser() {
   return (
     <section className="guide" id="guide">
       <div className="section-heading">
         <div>
           <p className="eyebrow">新手爸媽快速版</p>
-          <h2>怎麼排志願比較不慌</h2>
+          <h2>把指南獨立出來，分享給家人更方便</h2>
         </div>
       </div>
 
-      <div className="guide-grid">
-        <article>
-          <h3>先用生活圈排序</h3>
-          <p>第一輪先看離家、上班路線、祖父母支援路線。每天接送比單次評價更重要，尤其雨天和孩子生病臨時接回。</p>
-        </article>
-        <article>
-          <h3>再看缺額和班別</h3>
-          <p>2 歲專班與 3-5 歲班分開看。缺額多不一定最適合，但代表中籤機會與候補流動可能較高。</p>
-        </article>
-        <article>
-          <h3>公立、非營利、準公共</h3>
-          <p>公立通常費用低、校園穩定；非營利由政府委託法人辦理，常有明確理念；準公共多為私幼加入合作機制，收費與課程需逐園比較。</p>
-        </article>
-        <article>
-          <h3>評價要看內容</h3>
-          <p>Google 星等只能當入口。請讀低分評論的時間、事件類型與園方回應，也要查裁罰紀錄是否已改善。</p>
-        </article>
-      </div>
-
-      <div className="sources">
-        <h3>資料來源與更新提醒</h3>
+      <div className="sources guide-cta">
+        <h3>獨立網址</h3>
         <p>
-          目前缺額依使用者提供之 2026-04-29 公告清單整理；地址、電話參考官方/資料站公開資訊。Google
-          評價即時變動，本站預設不填假分數。
+          指南頁整理了常見選園分析、參觀清單、紅旗訊號、公立/非營利/準公共差異與抽籤排志願建議，適合直接丟給家人討論。
         </p>
         <div>
-          {sources.map((source) => (
-            <a key={source.url} href={source.url} target="_blank" rel="noreferrer">
-              {source.label}
-            </a>
-          ))}
+          <a href="#/guide">開啟挑選指南頁</a>
         </div>
       </div>
     </section>
+  );
+}
+
+function GuidePage() {
+  return (
+    <>
+      <Header />
+      <main className="detail-page guide-page">
+        <a className="back-link" href="#/">
+          回幼兒園清單
+        </a>
+        <section className="detail-hero">
+          <div>
+            <p className="eyebrow">幼兒園挑選指南</p>
+            <h1>把常見問題拆成可討論、可排序的幾個決策點</h1>
+            <p>這頁把網路上常見的家長分析整理成實際可用的版本，適合和伴侶、長輩一起對焦。</p>
+          </div>
+          <div className="detail-score">
+            <strong>Guide</strong>
+            <span>#/guide</span>
+          </div>
+        </section>
+
+        <section className="detail-main guide-main">
+          <InfoBlock title="一開始先看什麼">
+            <div className="guide-grid">
+              <article>
+                <h3>生活圈優先</h3>
+                <p>多數家長最後卡住的不是課程名稱，而是每天接送。離家、離公司、離祖父母支援點的動線，通常比單一亮點更影響長期穩定。</p>
+              </article>
+              <article>
+                <h3>班別分開看</h3>
+                <p>2 歲專班和 3-5 歲班不要混在一起比較。對雙薪家庭來說，2 歲專班名額、作息與照顧強度往往才是真正的決策點。</p>
+              </article>
+              <article>
+                <h3>先看能不能上</h3>
+                <p>公立與非營利通常要抽籤，準公共多半是直接報名。先把「錄取方式」和「時間壓力」釐清，才不會把大量精力放在根本進不去的選項。</p>
+              </article>
+            </div>
+          </InfoBlock>
+
+          <InfoBlock title="公立、非營利、準公共怎麼看">
+            <div className="guide-grid">
+              <article>
+                <h3>公立</h3>
+                <p>常見印象是便宜、穩定、校園資源完整。代價通常是名額少、抽籤競爭高，寒暑假與延托安排也要逐園確認。</p>
+              </article>
+              <article>
+                <h3>非營利</h3>
+                <p>常見優勢是收費平價、全年托育友善、由法人承辦而有明確理念。家長最常比較的是師資穩定度、延托品質與是否真的落實教學理念。</p>
+              </article>
+              <article>
+                <h3>準公共</h3>
+                <p>常見優勢是不用和公幼同一套大抽籤，報名彈性高。家長最在意的則是各園差異比較大，除了月費，還要看額外收費、課程真實樣貌與教師流動。</p>
+              </article>
+            </div>
+          </InfoBlock>
+
+          <InfoBlock title="爸媽最常在意的比較點">
+            <ul className="check-list">
+              <li>接送成本：平日早上 7:30-8:30、下午 16:00-18:00 的實際路況，比地圖上的直線距離更重要。</li>
+              <li>照顧時段：最晚幾點接回、課後留園是否穩定開、寒暑假安排怎麼算。</li>
+              <li>教學風格：是重生活自理、主題探索、戶外活動，還是偏學科、雙語、才藝導向。</li>
+              <li>環境與安全：教室採光、戶外空間、樓梯動線、門禁、接送身分確認。</li>
+              <li>親師溝通：聯絡頻率、照片回饋、事件通報速度，以及老師說明事情是否清楚不防禦。</li>
+              <li>師資穩定：家長常說「理念」很好，但實際體感常常取決於老師留任率與班級氣氛。</li>
+            </ul>
+          </InfoBlock>
+
+          <InfoBlock title="實地參觀時要觀察什麼">
+            <div className="guide-grid">
+              <article>
+                <h3>先看老師怎麼講話</h3>
+                <p>老師會不會蹲下來、願不願意等孩子回應、衝突時是貼標籤還是幫忙收情緒，這些比簡章文案更接近真實日常。</p>
+              </article>
+              <article>
+                <h3>再看孩子是不是自在</h3>
+                <p>孩子是否敢主動移動、問問題、拿教材，通常能反映教室是高壓管理還是有安全感的環境。</p>
+              </article>
+              <article>
+                <h3>最後問細節</h3>
+                <p>午睡不睡怎麼辦、挑食怎麼處理、如廁事故怎麼陪、臨時生病誰通知，這些細節最能看出園方價值觀。</p>
+              </article>
+            </div>
+          </InfoBlock>
+
+          <InfoBlock title="常見紅旗">
+            <ul className="check-list">
+              <li>只強調成果展示，卻說不清楚日常作息、師生互動和生活照顧流程。</li>
+              <li>談收費時很模糊，額外教材費、活動費、制服費、延托費拆很多層。</li>
+              <li>不願回答老師流動、班級人數、午睡與如廁處理等具體問題。</li>
+              <li>Google 評論低分內容集中在同一類問題，而且近期仍持續出現。</li>
+              <li>家長參觀時看到孩子大多被命令、被催促，很少有自在探索或正常對話。</li>
+            </ul>
+          </InfoBlock>
+
+          <InfoBlock title="抽籤與排志願的小策略">
+            <ul className="check-list">
+              <li>先分成 A 級「真的能每天接送」、B 級「勉強可行」、C 級「只有中籤才硬撐」三層，不要把所有園所視為同等可接受。</li>
+              <li>把 2 歲專班與 3-5 歲班分開討論，避免總缺額大就誤以為自己要的班別也多。</li>
+              <li>家人若意見不同，先對齊優先順序：距離、費用、時段、教學、戶外空間，哪個一定不能退。</li>
+              <li>抽籤前就先想好候補方案，例如準公共、私幼、祖父母支援或接送分工，不然中籤前後的焦慮會放大很多。</li>
+            </ul>
+          </InfoBlock>
+
+          <InfoBlock title="整理來源">
+            <div className="sources">
+              <h3>這頁主要參考</h3>
+              <p>以官方政策與常見家長整理交叉比對後濃縮，適合先建立決策框架；實際收費、時段與招生仍以各園公告為準。</p>
+              <div>
+                {guideReferences.map((source) => (
+                  <a key={source.url} href={source.url} target="_blank" rel="noreferrer" title={source.note}>
+                    {source.label}
+                  </a>
+                ))}
+              </div>
+            </div>
+          </InfoBlock>
+        </section>
+      </main>
+    </>
   );
 }
 

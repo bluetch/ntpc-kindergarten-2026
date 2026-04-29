@@ -841,6 +841,22 @@ h1 {
   gap: 16px;
 }
 
+.guide-page .detail-score strong {
+  font-size: 32px;
+}
+
+.guide-main {
+  margin-top: 4px;
+}
+
+.guide-main .guide-grid {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.guide-cta {
+  margin-top: 0;
+}
+
 .info-block {
   padding: 22px;
 }
@@ -924,6 +940,10 @@ h1 {
   .guide-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
+
+  .guide-main .guide-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
 }
 
 @media (max-width: 840px) {
@@ -958,6 +978,10 @@ h1 {
   .guide-grid,
   .info-list,
   .commute-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .guide-main .guide-grid {
     grid-template-columns: 1fr;
   }
 }

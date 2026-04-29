@@ -32,7 +32,7 @@ export function DetailPage({ school, activeHomes }) {
             <h1>{school.name}</h1>
           </div>
           <div className="detail-score">
-            <strong>{school.vacancies || "待查"}</strong>
+            <strong>{Number.isFinite(school.vacancies) ? school.vacancies : "待查"}</strong>
             <span>總缺額</span>
           </div>
         </section>

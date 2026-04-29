@@ -331,7 +331,8 @@ function ListPage({ activeHomes, customHomes, enrichedSchools, resetHomes, updat
   const [homeKey, setHomeKey] = useState("nearest");
   const [maxDistance, setMaxDistance] = useState("全部");
   const [sortBy, setSortBy] = useState("distance");
-  const [selectedId, setSelectedId] = useState(enrichedSchools[0].id);
+  const [selectedId, setSelectedId] = useState(null);
+  const [isMapOpen, setIsMapOpen] = useState(false);
 
   const filtered = useMemo(() => {
     const needle = query.trim().toLowerCase();
@@ -359,12 +360,10 @@ function ListPage({ activeHomes, customHomes, enrichedSchools, resetHomes, updat
   }, [classType, district, homeKey, maxDistance, query, sortBy, type]);
 
   const selected = enrichedSchools.find((school) => school.id === selectedId) ?? filtered[0] ?? enrichedSchools[0];
-  const summaryStats = [
-    { label: "園所", value: `${filtered.length} 間` },
-    { label: "3-5歲缺額", value: `${totalClassVacancies(filtered, "3-5歲班")} 名` },
-    { label: "2歲缺額", value: `${totalClassVacancies(filtered, "2歲專班")} 名` },
-    { label: "非營利", value: `${filtered.filter((school) => school.type === "非營利").length} 間` },
-  ];
+  const openMap = (schoolId) => {
+    setSelectedId(schoolId);
+    setIsMapOpen(true);
+  };
 
   return (
     <>
@@ -396,15 +395,6 @@ function ListPage({ activeHomes, customHomes, enrichedSchools, resetHomes, updat
               <span />
             </div>
           </div>
-        </section>
-
-        <section className="hero-stats" aria-label="快速摘要">
-          {summaryStats.map((item) => (
-            <article key={item.label}>
-              <strong>{item.value}</strong>
-              <span>{item.label}</span>
-            </article>
-          ))}
         </section>
 
         <TimelineBand />
@@ -491,36 +481,63 @@ function ListPage({ activeHomes, customHomes, enrichedSchools, resetHomes, updat
                   key={school.id}
                   school={school}
                   classType={classType}
-                  active={school.id === selected.id}
-                  onMap={() => setSelectedId(school.id)}
+                  active={isMapOpen && school.id === selected.id}
+                  onOpenMap={() => openMap(school.id)}
                 />
               ))}
             </div>
           </section>
-
-          <aside className="map-panel" aria-label="Google Map 預覽">
-            <div className="map-sticky">
-              <h2>地圖預覽</h2>
-              <p>{selected.name}</p>
-              <iframe title={`${selected.name} Google Map`} src={mapEmbedUrl(selected.address)} loading="lazy" />
-              <div className="map-actions">
-                <a href={googleMapUrl(selected.address)} target="_blank" rel="noreferrer">
-                  Google Maps
-                </a>
-                <a href={directionsUrl(activeHomes.zhonghe.address, selected.address)} target="_blank" rel="noreferrer">
-                  {activeHomes.zhonghe.label}路線
-                </a>
-                <a href={directionsUrl(activeHomes.yonghe.address, selected.address)} target="_blank" rel="noreferrer">
-                  {activeHomes.yonghe.label}路線
-                </a>
-              </div>
-            </div>
-          </aside>
         </section>
+
+        <MapDrawer
+          activeHomes={activeHomes}
+          isOpen={isMapOpen}
+          onClose={() => setIsMapOpen(false)}
+          school={selected}
+        />
 
         <GuideTeaser />
       </main>
     </>
+  );
+}
+
+function MapDrawer({ activeHomes, isOpen, onClose, school }) {
+  if (!school) return null;
+
+  return (
+    <div className={`map-drawer-shell ${isOpen ? "is-open" : ""}`} aria-hidden={!isOpen}>
+      <button
+        aria-label="關閉地圖預覽"
+        className={`map-drawer-backdrop ${isOpen ? "is-open" : ""}`}
+        onClick={onClose}
+        type="button"
+      />
+      <aside className={`map-drawer ${isOpen ? "is-open" : ""}`} aria-label="Google Map 預覽">
+        <div className="map-drawer-header">
+          <div>
+            <p className="eyebrow">地圖預覽</p>
+            <h2>{school.name}</h2>
+          </div>
+          <button onClick={onClose} type="button">
+            關閉
+          </button>
+        </div>
+        <p className="map-drawer-address">{school.address}</p>
+        <iframe title={`${school.name} Google Map`} src={mapEmbedUrl(school.address)} loading="lazy" />
+        <div className="map-actions">
+          <a href={googleMapUrl(school.address)} target="_blank" rel="noreferrer">
+            Google Maps
+          </a>
+          <a href={directionsUrl(activeHomes.zhonghe.address, school.address)} target="_blank" rel="noreferrer">
+            {activeHomes.zhonghe.label}路線
+          </a>
+          <a href={directionsUrl(activeHomes.yonghe.address, school.address)} target="_blank" rel="noreferrer">
+            {activeHomes.yonghe.label}路線
+          </a>
+        </div>
+      </aside>
+    </div>
   );
 }
 
@@ -578,10 +595,10 @@ function HomeSettingsCard({ customHomes, resetHomes, updateHome }) {
   );
 }
 
-function SchoolCard({ school, classType, active, onMap }) {
+function SchoolCard({ school, classType, active, onOpenMap }) {
   const vacancyCount = classVacancies(school, classType);
   return (
-    <article className={`school-card ${active ? "is-active" : ""}`}>
+    <article className={`school-card ${active ? "is-active" : ""}`} onClick={onOpenMap}>
       <div className="card-topline">
         <span>{school.district}</span>
         <span>{school.type}</span>
@@ -596,8 +613,21 @@ function SchoolCard({ school, classType, active, onMap }) {
       </div>
       <HomeDistanceList school={school} />
       <div className="card-actions">
-        <a href={`#/kindergarten/${school.id}`}>詳細</a>
-        <button type="button" onClick={onMap}>
+        <a
+          href={`#/kindergarten/${school.id}`}
+          onClick={(event) => {
+            event.stopPropagation();
+          }}
+        >
+          詳細
+        </a>
+        <button
+          type="button"
+          onClick={(event) => {
+            event.stopPropagation();
+            onOpenMap();
+          }}
+        >
           地圖
         </button>
       </div>

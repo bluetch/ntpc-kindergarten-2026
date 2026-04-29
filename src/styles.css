@@ -202,6 +202,38 @@ h1 {
   width: 100%;
 }
 
+.hero-stats {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 12px;
+  padding: 0 clamp(18px, 5vw, 72px) 28px;
+}
+
+.hero-stats article {
+  border: 2px solid var(--line);
+  border-radius: 16px;
+  background: rgba(255, 254, 250, 0.95);
+  box-shadow: 0 10px 24px rgba(98, 76, 44, 0.08);
+  padding: 14px 16px;
+}
+
+.hero-stats strong,
+.hero-stats span {
+  display: block;
+}
+
+.hero-stats strong {
+  font-size: 28px;
+  line-height: 1;
+}
+
+.hero-stats span {
+  margin-top: 6px;
+  color: var(--muted);
+  font-size: 13px;
+  font-weight: 800;
+}
+
 .play-scene {
   position: relative;
   min-height: 360px;
@@ -471,6 +503,12 @@ h1 {
 .guide h2 {
   margin: 0 0 12px;
   font-size: 24px;
+}
+
+.filter-hint {
+  margin: 0 0 12px;
+  color: var(--muted);
+  font-size: 13px;
 }
 
 .filters label {
@@ -857,6 +895,10 @@ h1 {
   margin-top: 0;
 }
 
+.guide-cta p {
+  max-width: 620px;
+}
+
 .info-block {
   padding: 22px;
 }
@@ -944,6 +986,10 @@ h1 {
   .guide-main .guide-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
+
+  .hero-stats {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
 }
 
 @media (max-width: 840px) {
@@ -982,6 +1028,10 @@ h1 {
   }
 
   .guide-main .guide-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .hero-stats {
     grid-template-columns: 1fr;
   }
 }

@@ -126,6 +126,12 @@ const classVacancyLabel = (classType) => {
   return "總缺額";
 };
 
+const totalClassVacancies = (schools, classType) =>
+  schools.reduce((sum, school) => {
+    const count = classVacancies(school, classType);
+    return sum + (Number.isFinite(count) ? count : 0);
+  }, 0);
+
 const getTimelineStatus = (index, now = new Date()) => {
   const window = timelineWindows[index];
   if (!window) return "future";
@@ -353,6 +359,12 @@ function ListPage({ activeHomes, customHomes, enrichedSchools, resetHomes, updat
   }, [classType, district, homeKey, maxDistance, query, sortBy, type]);
 
   const selected = enrichedSchools.find((school) => school.id === selectedId) ?? filtered[0] ?? enrichedSchools[0];
+  const summaryStats = [
+    { label: "園所", value: `${filtered.length} 間` },
+    { label: "3-5歲缺額", value: `${totalClassVacancies(filtered, "3-5歲班")} 名` },
+    { label: "2歲缺額", value: `${totalClassVacancies(filtered, "2歲專班")} 名` },
+    { label: "非營利", value: `${filtered.filter((school) => school.type === "非營利").length} 間` },
+  ];
 
   return (
     <>
@@ -361,11 +373,8 @@ function ListPage({ activeHomes, customHomes, enrichedSchools, resetHomes, updat
         <section className="hero">
           <div className="hero-copy">
             <p className="eyebrow">新北市 115 學年度</p>
-            <h1>把中和、永和幼兒園變成一張好懂的家人清單</h1>
-            <p>
-              整理公立、國小/國中附幼與非營利幼兒園缺額，搭配兩個家的距離、Google
-              地圖、抽籤時程與訪園檢查重點。
-            </p>
+            <h1>中永和幼兒園抽籤清單</h1>
+            <p>先看缺額、距離和接送成本，再決定要不要把時間花在進一步比較。</p>
             <div className="hero-actions">
               <a className="primary-action" href="#list">
                 看清單
@@ -389,11 +398,21 @@ function ListPage({ activeHomes, customHomes, enrichedSchools, resetHomes, updat
           </div>
         </section>
 
+        <section className="hero-stats" aria-label="快速摘要">
+          {summaryStats.map((item) => (
+            <article key={item.label}>
+              <strong>{item.value}</strong>
+              <span>{item.label}</span>
+            </article>
+          ))}
+        </section>
+
         <TimelineBand />
 
         <section className="layout" id="list">
           <aside className="filters" aria-label="篩選幼兒園">
             <h2>篩選</h2>
+            <p className="filter-hint">先選班別，再看距離和缺額。</p>
             <label>
               搜尋
               <input value={query} onChange={(event) => setQuery(event.target.value)} placeholder="園名、地址、區域" />
@@ -460,10 +479,10 @@ function ListPage({ activeHomes, customHomes, enrichedSchools, resetHomes, updat
           <section className="results" aria-label="幼兒園清單">
             <div className="section-heading">
               <div>
-                <p className="eyebrow">共 {filtered.length} 間符合</p>
+                <p className="eyebrow">符合條件</p>
                 <h2>幼兒園一覽</h2>
               </div>
-              <p>距離與路程為快速估算，實際車程、停車與尖峰路況請開 Google Maps 路線確認。</p>
+              <p>{filtered.length} 間</p>
             </div>
 
             <div className="school-grid">
@@ -539,11 +558,19 @@ function HomeSettingsCard({ customHomes, resetHomes, updateHome }) {
         <fieldset key={key}>
           <label>
             名稱
-            <input value={home.label} onChange={(event) => updateHome(key, "label", event.target.value)} />
+            <input
+              value={home.label}
+              onChange={(event) => updateHome(key, "label", event.target.value)}
+              placeholder={key === "zhonghe" ? "中和家" : "永和家"}
+            />
           </label>
           <label>
             地址
-            <input value={home.address} onChange={(event) => updateHome(key, "address", event.target.value)} />
+            <input
+              value={home.address}
+              onChange={(event) => updateHome(key, "address", event.target.value)}
+              placeholder={key === "zhonghe" ? "新北市中和區永和路90巷" : "新北市永和區文化路144巷"}
+            />
           </label>
         </fieldset>
       ))}
@@ -597,12 +624,12 @@ function HomeDistanceList({ school }) {
             </div>
             {estimates ? (
               <div className="route-estimates">
-                <span>開車約 {formatMinuteRange(estimates.car)}</span>
-                <span>機車約 {formatMinuteRange(estimates.scooter)}</span>
-                <span>大眾約 {formatMinuteRange(estimates.transit)}</span>
+                <span>汽 {formatMinuteRange(estimates.car)}</span>
+                <span>機 {formatMinuteRange(estimates.scooter)}</span>
+                <span>公 {formatMinuteRange(estimates.transit)}</span>
               </div>
             ) : (
-              <p>自訂地址請開 Google Maps 查即時路程</p>
+              <p>請開 Maps 看即時路程</p>
             )}
           </article>
         );
@@ -758,15 +785,13 @@ function GuideTeaser() {
       <div className="section-heading">
         <div>
           <p className="eyebrow">新手爸媽快速版</p>
-          <h2>把指南獨立出來，分享給家人更方便</h2>
+          <h2>把討論重點整理成單獨一頁</h2>
         </div>
       </div>
 
       <div className="sources guide-cta">
-        <h3>獨立網址</h3>
-        <p>
-          指南頁整理了常見選園分析、參觀清單、紅旗訊號、公立/非營利/準公共差異與抽籤排志願建議，適合直接丟給家人討論。
-        </p>
+        <h3>挑選指南</h3>
+        <p>把類型差異、參觀重點、紅旗和排志願邏輯放在同一頁，方便一起看。</p>
         <div>
           <a href="#/guide">開啟挑選指南頁</a>
         </div>
@@ -786,8 +811,8 @@ function GuidePage() {
         <section className="detail-hero">
           <div>
             <p className="eyebrow">幼兒園挑選指南</p>
-            <h1>把常見問題拆成可討論、可排序的幾個決策點</h1>
-            <p>這頁把網路上常見的家長分析整理成實際可用的版本，適合和伴侶、長輩一起對焦。</p>
+            <h1>把選園問題拆成幾個能快速對焦的決策點</h1>
+            <p>先釐清生活圈、錄取方式和時段需求，再談教學風格，討論會順很多。</p>
           </div>
           <div className="detail-score">
             <strong>Guide</strong>
@@ -800,15 +825,15 @@ function GuidePage() {
             <div className="guide-grid">
               <article>
                 <h3>生活圈優先</h3>
-                <p>多數家長最後卡住的不是課程名稱，而是每天接送。離家、離公司、離祖父母支援點的動線，通常比單一亮點更影響長期穩定。</p>
+                <p>真正會天天影響生活的，通常是接送動線，不是簡章上的亮點。</p>
               </article>
               <article>
                 <h3>班別分開看</h3>
-                <p>2 歲專班和 3-5 歲班不要混在一起比較。對雙薪家庭來說，2 歲專班名額、作息與照顧強度往往才是真正的決策點。</p>
+                <p>2 歲專班和 3-5 歲班需求不同，缺額也常差很多，最好拆開看。</p>
               </article>
               <article>
                 <h3>先看能不能上</h3>
-                <p>公立與非營利通常要抽籤，準公共多半是直接報名。先把「錄取方式」和「時間壓力」釐清，才不會把大量精力放在根本進不去的選項。</p>
+                <p>先確認抽籤或報名方式，避免把時間花在根本進不去的選項。</p>
               </article>
             </div>
           </InfoBlock>
@@ -817,15 +842,15 @@ function GuidePage() {
             <div className="guide-grid">
               <article>
                 <h3>公立</h3>
-                <p>常見印象是便宜、穩定、校園資源完整。代價通常是名額少、抽籤競爭高，寒暑假與延托安排也要逐園確認。</p>
+                <p>便宜、穩定、校園完整，但通常名額少，時段安排要逐園確認。</p>
               </article>
               <article>
                 <h3>非營利</h3>
-                <p>常見優勢是收費平價、全年托育友善、由法人承辦而有明確理念。家長最常比較的是師資穩定度、延托品質與是否真的落實教學理念。</p>
+                <p>平價、全年托育友善，也較常被比較師資穩定和延托品質。</p>
               </article>
               <article>
                 <h3>準公共</h3>
-                <p>常見優勢是不用和公幼同一套大抽籤，報名彈性高。家長最在意的則是各園差異比較大，除了月費，還要看額外收費、課程真實樣貌與教師流動。</p>
+                <p>報名彈性高，但園所差異大，除了月費還要看額外收費和師資流動。</p>
               </article>
             </div>
           </InfoBlock>
@@ -845,15 +870,15 @@ function GuidePage() {
             <div className="guide-grid">
               <article>
                 <h3>先看老師怎麼講話</h3>
-                <p>老師會不會蹲下來、願不願意等孩子回應、衝突時是貼標籤還是幫忙收情緒，這些比簡章文案更接近真實日常。</p>
+                <p>說話方式、等待孩子的耐心，往往比簡章更接近真實日常。</p>
               </article>
               <article>
                 <h3>再看孩子是不是自在</h3>
-                <p>孩子是否敢主動移動、問問題、拿教材，通常能反映教室是高壓管理還是有安全感的環境。</p>
+                <p>孩子敢不敢移動、拿教材、開口問，能看出教室氛圍。</p>
               </article>
               <article>
                 <h3>最後問細節</h3>
-                <p>午睡不睡怎麼辦、挑食怎麼處理、如廁事故怎麼陪、臨時生病誰通知，這些細節最能看出園方價值觀。</p>
+                <p>午睡、挑食、如廁、臨時生病，最能看出園方怎麼照顧孩子。</p>
               </article>
             </div>
           </InfoBlock>
@@ -880,7 +905,7 @@ function GuidePage() {
           <InfoBlock title="整理來源">
             <div className="sources">
               <h3>這頁主要參考</h3>
-              <p>以官方政策與常見家長整理交叉比對後濃縮，適合先建立決策框架；實際收費、時段與招生仍以各園公告為準。</p>
+              <p>先用來建立決策框架；實際收費、時段與招生仍以各園公告為準。</p>
               <div>
                 {guideReferences.map((source) => (
                   <a key={source.url} href={source.url} target="_blank" rel="noreferrer" title={source.note}>

@@ -429,10 +429,14 @@ h1 {
 
 .layout {
   display: grid;
-  grid-template-columns: 250px minmax(0, 1fr) 360px;
+  grid-template-columns: 250px minmax(0, 1fr);
   gap: 20px;
   align-items: start;
   padding: 22px clamp(18px, 5vw, 72px) 56px;
+}
+
+.results {
+  min-width: 0;
 }
 
 .filters {

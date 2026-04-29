@@ -447,10 +447,6 @@ function TimelineBand() {
         const status = getTimelineStatus(index, now);
         return (
           <article className={`timeline-step is-${status}`} key={item.date}>
-            <div className="timeline-track" aria-hidden="true">
-              <span className="timeline-dot">{index + 1}</span>
-              {index < admissionTimeline.length - 1 && <span className="timeline-arrow" />}
-            </div>
             <div className="timeline-content">
               <em>{timelineStatusLabels[status]}</em>
               <strong>{item.date}</strong>

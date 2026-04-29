@@ -20,6 +20,21 @@ const defaultHomeInputs = {
   },
 };
 
+const timelineWindows = [
+  { start: "2026-04-29T09:00:00+08:00", end: "2026-04-29T23:59:59+08:00" },
+  { start: "2026-04-30T10:00:00+08:00", end: "2026-05-07T16:00:00+08:00" },
+  { start: "2026-05-08T00:00:00+08:00", end: "2026-05-12T23:59:59+08:00" },
+  { start: "2026-05-13T00:00:00+08:00", end: "2026-05-14T16:00:00+08:00" },
+  { start: "2026-05-19T12:00:00+08:00", end: "2026-05-19T14:59:59+08:00" },
+  { start: "2026-05-19T15:00:00+08:00", end: "2026-05-20T18:00:00+08:00" },
+];
+
+const timelineStatusLabels = {
+  past: "已完成",
+  current: "進行中",
+  future: "未開始",
+};
+
 const googleMapUrl = (destination) =>
   `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(destination)}`;
 
@@ -49,6 +64,16 @@ const classVacancyLabel = (classType) => {
   if (classType === "2歲專班") return "2歲缺額";
   if (classType === "3-5歲班") return "3-5歲缺額";
   return "總缺額";
+};
+
+const getTimelineStatus = (index, now = new Date()) => {
+  const window = timelineWindows[index];
+  if (!window) return "future";
+  const start = new Date(window.start);
+  const end = new Date(window.end);
+  if (now < start) return "future";
+  if (now > end) return "past";
+  return "current";
 };
 
 const hasCoordinates = (place) =>
@@ -279,14 +304,7 @@ function ListPage({ activeHomes, customHomes, enrichedSchools, resetHomes, updat
           </div>
         </section>
 
-        <section className="timeline-band" aria-label="115 學年度招生時程">
-          {admissionTimeline.map((item) => (
-            <article key={item.date}>
-              <strong>{item.date}</strong>
-              <span>{item.label}</span>
-            </article>
-          ))}
-        </section>
+        <TimelineBand />
 
         <section className="layout" id="list">
           <aside className="filters" aria-label="篩選幼兒園">
@@ -399,6 +417,31 @@ function ListPage({ activeHomes, customHomes, enrichedSchools, resetHomes, updat
         <GuideSection />
       </main>
     </>
+  );
+}
+
+function TimelineBand() {
+  const now = new Date();
+
+  return (
+    <section className="timeline-band" aria-label="115 學年度招生時程">
+      {admissionTimeline.map((item, index) => {
+        const status = getTimelineStatus(index, now);
+        return (
+          <article className={`timeline-step is-${status}`} key={item.date}>
+            <div className="timeline-track" aria-hidden="true">
+              <span className="timeline-dot">{index + 1}</span>
+              {index < admissionTimeline.length - 1 && <span className="timeline-arrow" />}
+            </div>
+            <div className="timeline-content">
+              <em>{timelineStatusLabels[status]}</em>
+              <strong>{item.date}</strong>
+              <span>{item.label}</span>
+            </div>
+          </article>
+        );
+      })}
+    </section>
   );
 }
 

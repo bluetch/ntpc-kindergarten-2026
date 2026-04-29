@@ -6,6 +6,10 @@ import {
   googleMapUrl,
   directionsUrl,
   formatDistance,
+  formatRate,
+  formatRateValue,
+  getAverageRating,
+  getRatingItems,
   hasConfiguredAddress,
 } from "./App.jsx";
 
@@ -16,6 +20,9 @@ export function DetailPage({ school, activeHomes }) {
       : school.type === "準公共"
         ? commonInfo.quasiPublicFee
         : commonInfo.publicFee;
+  const ratingItems = getRatingItems(school);
+  const commentItems = ratingItems.filter((item) => item.comment);
+  const averageRating = getAverageRating(school);
 
   return (
     <>
@@ -54,6 +61,31 @@ export function DetailPage({ school, activeHomes }) {
                   <dd>{school.phone || "待補"}</dd>
                 </div>
               </dl>
+            </InfoBlock>
+
+            <InfoBlock title="綜合評分">
+              <div className="detail-rating-summary">
+                <span>平均</span>
+                <strong>{formatRate(averageRating)}</strong>
+              </div>
+              <div className="rating-grid is-detail">
+                {ratingItems.map((item) => (
+                  <span className={`rating-chip ${item.className}`} key={item.label}>
+                    <em>{item.label}</em>
+                    <strong>{formatRateValue(item.rate)}</strong>
+                  </span>
+                ))}
+              </div>
+              {commentItems.length > 0 && (
+                <div className="rating-comments is-detail" aria-label="評語">
+                  {commentItems.map((item) => (
+                    <p key={item.label}>
+                      <strong>{item.label}評語：</strong>
+                      {item.comment}
+                    </p>
+                  ))}
+                </div>
+              )}
             </InfoBlock>
 
             <InfoBlock title="上下課、費用、教學模式">

@@ -59,9 +59,15 @@ const matchesHomeInputs = (left = {}, right = {}) =>
   });
 
 const shouldUseKkHomePreset = () => {
-  const params = new URLSearchParams(window.location.search);
-  return params.get(HOME_PRESET_QUERY_KEY) === KKHOME_PRESET;
+  const searchParams = new URLSearchParams(window.location.search);
+  if (searchParams.get(HOME_PRESET_QUERY_KEY) === KKHOME_PRESET) return true;
+
+  const hashQuery = window.location.hash.split("?")[1] ?? "";
+  const hashParams = new URLSearchParams(hashQuery);
+  return hashParams.get(HOME_PRESET_QUERY_KEY) === KKHOME_PRESET;
 };
+
+export const shouldShowFamilyRatings = () => shouldUseKkHomePreset();
 
 const timelineWindows = [
   { start: "2026-04-29T09:00:00+08:00", end: "2026-04-29T23:59:59+08:00" },
@@ -194,6 +200,46 @@ const haversineKm = (a, b) => {
 };
 
 export const formatDistance = (km) => (Number.isFinite(km) ? `${km.toFixed(km < 1 ? 2 : 1)} km` : "開 Maps");
+export const formatRate = (rate) => (Number.isFinite(rate) ? `${rate}/5` : "未評分");
+export const formatRateValue = (rate) => (Number.isFinite(rate) ? `${rate}` : "未評分");
+export const getPunishRecordCount = (records) => {
+  if (!Array.isArray(records) || records.length === 0) return 0;
+  const summaryCounts = records
+    .map((record) => {
+      if (typeof record?.summary !== "string") return null;
+      const match = record.summary.match(/(\d+)\s*筆/);
+      return match ? Number(match[1]) : null;
+    })
+    .filter(Number.isFinite);
+  return summaryCounts.length === records.length
+    ? summaryCounts.reduce((sum, count) => sum + count, 0)
+    : records.length;
+};
+
+export const ratingSources = [
+  { label: "Ken", rateKey: "kenRate", commentKey: null, className: "is-human", requiresKkHome: true },
+  { label: "Kelly", rateKey: "kellyRate", commentKey: null, className: "is-human", requiresKkHome: true },
+  { label: "Claude", rateKey: "claudeRate", commentKey: "claudeComment", className: "is-ai" },
+  { label: "Gemini", rateKey: "geminiRate", commentKey: "geminiComment", className: "is-ai" },
+  { label: "ChatGPT", rateKey: "chatgptRate", commentKey: "chatgptComment", className: "is-ai" },
+];
+
+export const getRatingItems = (school) =>
+  ratingSources
+    .filter((source) => !source.requiresKkHome || shouldShowFamilyRatings())
+    .map((source) => ({
+      ...source,
+      rate: school[source.rateKey],
+      comment: source.commentKey ? school[source.commentKey] : null,
+    }));
+
+export const getAverageRating = (school) => {
+  const rates = getRatingItems(school)
+    .map((item) => item.rate)
+    .filter(Number.isFinite);
+  if (rates.length === 0) return null;
+  return Math.round(rates.reduce((sum, rate) => sum + rate, 0) / rates.length);
+};
 
 const formatMinutes = (minutes) => `${Math.max(1, Math.round(minutes))}分`;
 
@@ -642,43 +688,86 @@ function HomeSettingsCard({ customHomes, resetHomes, updateHome }) {
 
 function SchoolCard({ school, classType, active, onOpenMap }) {
   const vacancyCount = classVacancies(school, classType);
+  const isDisabled = vacancyCount === 0;
+  const averageRating = getAverageRating(school);
+  const ratingItems = getRatingItems(school);
+  const commentItems = ratingItems.filter((item) => item.comment);
+  const punishRecordCount = getPunishRecordCount(school.punishRecord);
   return (
-    <article className={`school-card ${active ? "is-active" : ""}`}>
+    <article
+      aria-disabled={isDisabled}
+      className={`school-card ${active ? "is-active" : ""} ${isDisabled ? "is-disabled" : ""}`}
+    >
       <div className="card-topline">
         <span>{school.district}</span>
         <span>{schoolCategoryLabel(school.type)}</span>
       </div>
       <div className="card-title">
-        <div>
-          <h3>{school.name}</h3>
-          <p className="address">{school.address}</p>
-          {Array.isArray(school.punishRecord) && (
-            <p className={`punish-badge ${school.punishRecord.length === 0 ? "is-zero" : ""}`}>
-              裁罰紀錄: {school.punishRecord.length}
-            </p>
-          )}
+        <div className="card-main">
+          <div className="card-summary-row">
+            <div className="card-copy">
+            <h3>{school.name}</h3>
+            <p className="address">{school.address}</p>
+            </div>
+            <div className="metrics">
+              <span>
+                {classVacancyLabel(classType)}
+                <strong>{Number.isFinite(vacancyCount) ? vacancyCount : "待查"}</strong>
+              </span>
+            </div>
+          </div>
         </div>
-        <div className="metrics">
-          <span>
-            {classVacancyLabel(classType)}
-            <strong>{Number.isFinite(vacancyCount) ? vacancyCount : "待查"}</strong>
-          </span>
+        <div className="rating-panel" aria-label="綜合評分比較">
+          <div className="rating-panel-head">
+            <span>綜合評分</span>
+            <strong>{formatRate(averageRating)}</strong>
+          </div>
+          <div className="rating-grid">
+              {ratingItems.map((item) => (
+                <span className={`rating-chip ${item.className}`} key={item.label}>
+                  <em>{item.label}</em>
+                  <strong>{formatRateValue(item.rate)}</strong>
+                </span>
+              ))}
+          </div>
         </div>
+        {commentItems.length > 0 && (
+          <div className="rating-comments" aria-label="AI 評語">
+            {commentItems.map((item) => (
+              <p key={item.label}>
+                <strong>{item.label}評語：</strong>
+                {item.comment}
+              </p>
+            ))}
+          </div>
+        )}
+        {Array.isArray(school.punishRecord) && (
+          <p className={`punish-badge ${punishRecordCount === 0 ? "is-zero" : ""}`}>
+            裁罰紀錄: {punishRecordCount}
+          </p>
+        )}
       </div>
       <HomeDistanceList school={school} />
       <div className="card-actions">
         <a
           href={`#/kindergarten/${school.id}`}
           onClick={(event) => {
+            if (isDisabled) {
+              event.preventDefault();
+              return;
+            }
             event.stopPropagation();
           }}
+          tabIndex={isDisabled ? -1 : undefined}
         >
           詳細
         </a>
         <button
+          disabled={isDisabled}
           type="button"
           onClick={(event) => {
             event.stopPropagation();
+            if (isDisabled) return;
             onOpenMap();
           }}
         >

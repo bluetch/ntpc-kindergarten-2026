@@ -625,6 +625,25 @@ h1 {
   padding: 18px;
 }
 
+.school-card.is-disabled {
+  background: rgba(239, 239, 239, 0.96);
+  border-color: #b4b4b4;
+  box-shadow: none;
+}
+
+.school-card.is-disabled h3,
+.school-card.is-disabled .address,
+.school-card.is-disabled .rating-panel,
+.school-card.is-disabled .rating-panel-head,
+.school-card.is-disabled .rating-chip,
+.school-card.is-disabled .rating-comments,
+.school-card.is-disabled .home-distance-list,
+.school-card.is-disabled .home-distance-list strong,
+.school-card.is-disabled .metrics span,
+.school-card.is-disabled .metrics strong {
+  color: #7a7a7a;
+}
+
 .card-topline {
   display: flex;
   flex-wrap: wrap;
@@ -644,6 +663,12 @@ h1 {
 .card-topline span+span {
   background: #e8f2fb;
   color: #285473;
+}
+
+.school-card.is-disabled .card-topline span,
+.school-card.is-disabled .card-topline span+span {
+  background: #dfdfdf;
+  color: #6f6f6f;
 }
 
 .school-card h3 {
@@ -674,28 +699,161 @@ h1 {
   color: #315b2c;
 }
 
+.school-card.is-disabled .punish-badge,
+.school-card.is-disabled .punish-badge.is-zero {
+  background: #d7d7d7;
+  color: #6f6f6f;
+}
+
 .address {
   margin: 4px 0 0;
   font-size: 14px;
 }
 
-.card-title {
+.rating-panel {
+  display: grid;
+  gap: 8px;
+  margin-top: 10px;
+  border: 1px solid #e2d6bc;
+  border-radius: 10px;
+  background: #fffaf0;
+  padding: 10px;
+}
+
+.rating-panel-head,
+.detail-rating-summary {
   display: flex;
+  align-items: center;
   justify-content: space-between;
+  gap: 10px;
+  color: #6c5842;
+  font-size: 12px;
+  font-weight: 900;
+}
+
+.rating-panel-head strong,
+.detail-rating-summary strong {
+  color: var(--ink);
+  font-size: 18px;
+}
+
+.rating-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(58px, 1fr));
+  gap: 6px;
+}
+
+.rating-grid.is-detail {
+  grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+  margin-top: 12px;
+}
+
+.rating-chip {
+  display: grid;
+  gap: 3px;
+  min-width: 0;
+  border-radius: 8px;
+  background: #f4ead2;
+  color: #6c5842;
+  padding: 7px 6px;
+  text-align: center;
+}
+
+.rating-chip.is-ai {
+  background: #e8f2fb;
+  color: #285473;
+}
+
+.rating-chip em {
+  overflow: hidden;
+  font-size: 11px;
+  font-style: normal;
+  font-weight: 900;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.rating-chip strong {
+  color: var(--ink);
+  font-size: 13px;
+  line-height: 1.1;
+}
+
+.rating-comments {
+  display: grid;
+  gap: 6px;
+  margin-top: 8px;
+}
+
+.rating-comments p {
+  margin: 0;
+  color: var(--muted);
+  font-size: 13px;
+  line-height: 1.45;
+}
+
+.rating-comments strong {
+  color: #3b352f;
+}
+
+.rating-comments.is-detail {
+  margin-top: 14px;
+}
+
+.detail-rating-summary {
+  border-radius: 10px;
+  background: #fffaf0;
+  padding: 12px 14px;
+}
+
+.school-card.is-disabled .rating-panel,
+.school-card.is-disabled .rating-chip,
+.school-card.is-disabled .rating-chip.is-ai,
+.school-card.is-disabled .detail-rating-summary {
+  border-color: #d0d0d0;
+  background: #dfdfdf;
+}
+
+.school-card.is-disabled .rating-comments strong {
+  color: #6f6f6f;
+}
+
+.card-title {
+  display: grid;
+  gap: 10px;
+  margin-bottom: 8px;
+}
+
+.card-summary-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
   align-items: flex-start;
   gap: 12px;
-  margin-bottom: 8px;
+}
+
+.card-main {
+  min-width: 0;
+}
+
+.card-copy {
+  min-width: 0;
+}
+
+.card-copy h3,
+.card-copy .address,
+.rating-comments p {
+  overflow-wrap: anywhere;
 }
 
 .metrics {
   display: flex;
-  flex-direction: column;
+  flex-direction: row;
+  flex-wrap: wrap;
   gap: 8px;
-  flex-shrink: 0;
 }
 
 .metrics span {
-  min-width: 84px;
+  min-width: 92px;
   border-radius: 14px;
   background: #fff5d8;
   padding: 8px 10px;
@@ -709,6 +867,10 @@ h1 {
   display: block;
   color: var(--ink);
   font-size: 22px;
+}
+
+.school-card.is-disabled .metrics span {
+  background: #e3e3e3;
 }
 
 .home-distance-list {
@@ -753,6 +915,16 @@ h1 {
 .commute-card a {
   background: white;
   font-size: 14px;
+}
+
+.school-card.is-disabled .card-actions a,
+.school-card.is-disabled .card-actions button {
+  border-color: #a8a8a8;
+  background: #dedede;
+  box-shadow: none;
+  color: #7a7a7a;
+  cursor: not-allowed;
+  pointer-events: none;
 }
 
 .detail-side iframe {
@@ -1092,6 +1264,7 @@ h1 {
 
   .guide-grid,
   .info-list,
+  .rating-grid,
   .commute-grid {
     grid-template-columns: 1fr;
   }
@@ -1141,13 +1314,25 @@ h1 {
     font-size: 36px;
   }
 
+  .card-summary-row {
+    grid-template-columns: 1fr;
+  }
+
   .metrics {
     flex-direction: row;
     gap: 6px;
   }
 
+  .metrics span {
+    min-width: 84px;
+  }
+
   .school-card {
     min-height: unset;
+  }
+
+  .rating-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
   .school-house {

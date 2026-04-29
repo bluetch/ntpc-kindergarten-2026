@@ -95,6 +95,24 @@ const haversineKm = (a, b) => {
 
 const formatDistance = (km) => (Number.isFinite(km) ? `${km.toFixed(km < 1 ? 2 : 1)} km` : "開 Maps");
 
+const formatMinutes = (minutes) => `${Math.max(1, Math.round(minutes))}分`;
+
+const formatMinuteRange = ([min, max]) => {
+  const low = Math.max(1, Math.round(min));
+  const high = Math.max(low, Math.round(max));
+  return low === high ? formatMinutes(low) : `${low}-${high}分`;
+};
+
+const estimateCommuteTimes = (km) => {
+  if (!Number.isFinite(km)) return null;
+  const roadKm = Math.max(km * 1.35, km + 0.25);
+  return {
+    car: [roadKm * 2.5 + 3, roadKm * 4.3 + 8],
+    scooter: [roadKm * 2.3 + 2, roadKm * 3.8 + 5],
+    transit: [roadKm * 3.4 + 10, roadKm * 6 + 18],
+  };
+};
+
 const distanceSortValue = (km) => (Number.isFinite(km) ? km : Number.POSITIVE_INFINITY);
 
 const vacancySortValue = (count) => (Number.isFinite(count) ? count : Number.NEGATIVE_INFINITY);
@@ -378,7 +396,7 @@ function ListPage({ activeHomes, customHomes, enrichedSchools, resetHomes, updat
                 <p className="eyebrow">共 {filtered.length} 間符合</p>
                 <h2>幼兒園一覽</h2>
               </div>
-              <p>距離為直線粗估，實際車程與停車請開 Google Maps 路線確認。</p>
+              <p>距離與路程為快速估算，實際車程、停車與尖峰路況請開 Google Maps 路線確認。</p>
             </div>
 
             <div className="school-grid">
@@ -511,11 +529,23 @@ function HomeDistanceList({ school }) {
       {entries.map(([key, label]) => {
         const distance = school.homeDistances[key];
         const isNearest = key === school.nearestHomeKey && Number.isFinite(distance);
+        const estimates = estimateCommuteTimes(distance);
         return (
-          <div className={isNearest ? "is-nearest" : ""} key={key}>
-            <span>{label}</span>
-            <strong>{formatDistance(distance)}</strong>
-          </div>
+          <article className={isNearest ? "is-nearest" : ""} key={key}>
+            <div className="home-distance-main">
+              <span>{label}</span>
+              <strong>{formatDistance(distance)}</strong>
+            </div>
+            {estimates ? (
+              <div className="route-estimates">
+                <span>開車約 {formatMinuteRange(estimates.car)}</span>
+                <span>機車約 {formatMinuteRange(estimates.scooter)}</span>
+                <span>大眾約 {formatMinuteRange(estimates.transit)}</span>
+              </div>
+            ) : (
+              <p>自訂地址請開 Google Maps 查即時路程</p>
+            )}
+          </article>
         );
       })}
     </div>

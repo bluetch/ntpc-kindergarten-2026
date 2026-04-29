@@ -696,12 +696,8 @@ h1 {
   margin: 4px 0 0;
 }
 
-.home-distance-list div {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 12px;
-  min-height: 42px;
+.home-distance-list article {
+  min-height: 74px;
   border: 2px solid var(--line);
   border-radius: 12px;
   background: white;
@@ -711,17 +707,50 @@ h1 {
   font-weight: 900;
 }
 
-.home-distance-list div.is-nearest {
+.home-distance-list article.is-nearest {
   border-color: #3b352f;
-  background: var(--coral);
+  background: #fff0dc;
   box-shadow: 3px 3px 0 #3b352f;
   color: #3b352f;
+}
+
+.home-distance-main {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
 }
 
 .home-distance-list strong {
   flex: 0 0 auto;
   color: var(--ink);
   font-size: 16px;
+}
+
+.route-estimates {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 8px;
+}
+
+.route-estimates span {
+  border-radius: 999px;
+  background: #e8f2fb;
+  color: #285473;
+  font-size: 12px;
+  padding: 4px 7px;
+}
+
+.home-distance-list article.is-nearest .route-estimates span {
+  background: var(--coral);
+  color: #3b352f;
+}
+
+.home-distance-list p {
+  margin: 8px 0 0;
+  color: var(--muted);
+  font-size: 12px;
 }
 
 .card-actions button {

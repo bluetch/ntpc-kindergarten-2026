@@ -30,6 +30,23 @@ const emptyHomeInputs = {
   },
 };
 
+const hydrateHomeInputs = (savedHomes = {}) =>
+  Object.fromEntries(
+    Object.entries(defaultHomeInputs).map(([key, defaultHome]) => {
+      const savedHome = savedHomes[key] ?? {};
+      return [
+        key,
+        {
+          label: typeof savedHome.label === "string" ? savedHome.label : defaultHome.label,
+          address: typeof savedHome.address === "string" ? savedHome.address : defaultHome.address,
+        },
+      ];
+    }),
+  );
+
+const areHomesEmpty = (homeInputs) =>
+  Object.values(homeInputs).every((home) => !home.label.trim() && !home.address.trim());
+
 const timelineWindows = [
   { start: "2026-04-29T09:00:00+08:00", end: "2026-04-29T23:59:59+08:00" },
   { start: "2026-04-30T10:00:00+08:00", end: "2026-05-07T16:00:00+08:00" },
@@ -219,13 +236,17 @@ function useCustomHomes() {
   const [customHomes, setCustomHomes] = useState(() => {
     try {
       const saved = window.localStorage.getItem(HOME_STORAGE_KEY);
-      return saved ? { ...defaultHomeInputs, ...JSON.parse(saved) } : defaultHomeInputs;
+      return saved ? hydrateHomeInputs(JSON.parse(saved)) : defaultHomeInputs;
     } catch {
       return defaultHomeInputs;
     }
   });
 
   useEffect(() => {
+    if (areHomesEmpty(customHomes)) {
+      window.localStorage.removeItem(HOME_STORAGE_KEY);
+      return;
+    }
     window.localStorage.setItem(HOME_STORAGE_KEY, JSON.stringify(customHomes));
   }, [customHomes]);
 
@@ -288,7 +309,7 @@ function Header() {
       <nav>
         <a href="#list">清單</a>
         <a href="#/guide">挑選指南</a>
-        <a href="https://github.com/bluetch" target="_blank" rel="noreferrer">
+        <a href="https://github.com/bluetch/ntpc-kindergarten-2026" target="_blank" rel="noreferrer">
           GitHub
         </a>
       </nav>

@@ -6,6 +6,7 @@ import {
   googleMapUrl,
   directionsUrl,
   formatDistance,
+  hasConfiguredAddress,
 } from "./App.jsx";
 
 export function DetailPage({ school, activeHomes }) {
@@ -89,22 +90,26 @@ export function DetailPage({ school, activeHomes }) {
             <a className="primary-action full" href={googleMapUrl(school)} target="_blank" rel="noreferrer">
               Google Maps
             </a>
-            <a
-              className="secondary-action full"
-              href={directionsUrl(activeHomes.homeA.address, school)}
-              target="_blank"
-              rel="noreferrer"
-            >
-              從 {activeHomes.homeA.label} 導航 ({formatDistance(school.homeDistances.homeA)})
-            </a>
-            <a
-              className="secondary-action full"
-              href={directionsUrl(activeHomes.homeB.address, school)}
-              target="_blank"
-              rel="noreferrer"
-            >
-              從 {activeHomes.homeB.label} 導航 ({formatDistance(school.homeDistances.homeB)})
-            </a>
+            {hasConfiguredAddress(activeHomes.homeA) && (
+              <a
+                className="secondary-action full"
+                href={directionsUrl(activeHomes.homeA.address, school)}
+                target="_blank"
+                rel="noreferrer"
+              >
+                從 {activeHomes.homeA.label} 導航 ({formatDistance(school.homeDistances.homeA)})
+              </a>
+            )}
+            {hasConfiguredAddress(activeHomes.homeB) && (
+              <a
+                className="secondary-action full"
+                href={directionsUrl(activeHomes.homeB.address, school)}
+                target="_blank"
+                rel="noreferrer"
+              >
+                從 {activeHomes.homeB.label} 導航 ({formatDistance(school.homeDistances.homeB)})
+              </a>
+            )}
           </aside>
         </section>
       </main>

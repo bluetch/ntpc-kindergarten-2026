@@ -9,8 +9,10 @@ import {
 } from "./data/kindergartens.js";
 
 const HOME_STORAGE_KEY = "ntpc-kindergarten-picker-homes";
+const HOME_PRESET_QUERY_KEY = "home";
+const KKHOME_PRESET = "kkhome";
 
-const defaultHomeInputs = {
+const kkHomeInputs = {
   homeA: {
     label: homes.homeA.label,
     address: homes.homeA.address,
@@ -34,7 +36,7 @@ const emptyHomeInputs = {
 
 const hydrateHomeInputs = (savedHomes = {}) =>
   Object.fromEntries(
-    Object.entries(defaultHomeInputs).map(([key, defaultHome]) => {
+    Object.entries(emptyHomeInputs).map(([key, defaultHome]) => {
       const savedHome = savedHomes[key] ?? {};
       return [
         key,
@@ -48,6 +50,18 @@ const hydrateHomeInputs = (savedHomes = {}) =>
 
 const areHomesEmpty = (homeInputs) =>
   Object.values(homeInputs).every((home) => !home.label.trim() && !home.address.trim());
+
+const matchesHomeInputs = (left = {}, right = {}) =>
+  Object.keys(emptyHomeInputs).every((key) => {
+    const leftHome = left[key] ?? {};
+    const rightHome = right[key] ?? {};
+    return leftHome.label === rightHome.label && leftHome.address === rightHome.address;
+  });
+
+const shouldUseKkHomePreset = () => {
+  const params = new URLSearchParams(window.location.search);
+  return params.get(HOME_PRESET_QUERY_KEY) === KKHOME_PRESET;
+};
 
 const timelineWindows = [
   { start: "2026-04-29T09:00:00+08:00", end: "2026-04-29T23:59:59+08:00" },
@@ -163,6 +177,8 @@ const getTimelineStatus = (index, now = new Date()) => {
 const hasCoordinates = (place) =>
   Number.isFinite(place?.lat) && Number.isFinite(place?.lng);
 
+export const hasConfiguredAddress = (home) => typeof home?.address === "string" && home.address.trim().length > 0;
+
 const haversineKm = (a, b) => {
   if (!hasCoordinates(a) || !hasCoordinates(b)) return null;
   const radius = 6371;
@@ -204,7 +220,7 @@ const getHomeDistance = (school, homeKey) => {
 
 const resolveHomes = (customHomes) =>
   Object.fromEntries(
-    Object.entries(defaultHomeInputs).map(([key, defaultHome]) => {
+    Object.entries(kkHomeInputs).map(([key, defaultHome]) => {
       const customHome = customHomes[key] ?? defaultHome;
       const address = customHome.address.trim();
       const fallbackLabel = key === "homeA" ? "接送地址 A" : "接送地址 B";
@@ -233,6 +249,10 @@ const enrichSchool = (school, activeHomes) => {
       homeA: activeHomes.homeA.label,
       homeB: activeHomes.homeB.label,
     },
+    homeConfigured: {
+      homeA: hasConfiguredAddress(activeHomes.homeA),
+      homeB: hasConfiguredAddress(activeHomes.homeB),
+    },
     homeAKm,
     homeBKm,
     nearestKm: nearest?.distance ?? null,
@@ -253,11 +273,17 @@ function useHashRoute() {
 
 function useCustomHomes() {
   const [customHomes, setCustomHomes] = useState(() => {
+    if (shouldUseKkHomePreset()) {
+      return kkHomeInputs;
+    }
+
     try {
       const saved = window.localStorage.getItem(HOME_STORAGE_KEY);
-      return saved ? hydrateHomeInputs(JSON.parse(saved)) : defaultHomeInputs;
+      if (!saved) return emptyHomeInputs;
+      const hydratedHomes = hydrateHomeInputs(JSON.parse(saved));
+      return matchesHomeInputs(hydratedHomes, kkHomeInputs) ? emptyHomeInputs : hydratedHomes;
     } catch {
-      return defaultHomeInputs;
+      return emptyHomeInputs;
     }
   });
 
@@ -544,12 +570,16 @@ function MapDrawer({ activeHomes, isOpen, onClose, school }) {
           <a href={googleMapUrl(school)} target="_blank" rel="noreferrer">
             Google Maps
           </a>
-          <a href={directionsUrl(activeHomes.homeA.address, school)} target="_blank" rel="noreferrer">
-            {activeHomes.homeA.label}路線
-          </a>
-          <a href={directionsUrl(activeHomes.homeB.address, school)} target="_blank" rel="noreferrer">
-            {activeHomes.homeB.label}路線
-          </a>
+          {hasConfiguredAddress(activeHomes.homeA) && (
+            <a href={directionsUrl(activeHomes.homeA.address, school)} target="_blank" rel="noreferrer">
+              {activeHomes.homeA.label}路線
+            </a>
+          )}
+          {hasConfiguredAddress(activeHomes.homeB) && (
+            <a href={directionsUrl(activeHomes.homeB.address, school)} target="_blank" rel="noreferrer">
+              {activeHomes.homeB.label}路線
+            </a>
+          )}
         </div>
       </aside>
     </div>
@@ -593,7 +623,7 @@ function HomeSettingsCard({ customHomes, resetHomes, updateHome }) {
             <input
               value={home.label}
               onChange={(event) => updateHome(key, "label", event.target.value)}
-              placeholder={key === "homeA" ? "中和家" : "永和家"}
+              placeholder={key === "homeA" ? "接送地址 A" : "接送地址 B"}
             />
           </label>
           <label>
@@ -601,7 +631,7 @@ function HomeSettingsCard({ customHomes, resetHomes, updateHome }) {
             <input
               value={home.address}
               onChange={(event) => updateHome(key, "address", event.target.value)}
-              placeholder={key === "homeA" ? "新北市中和區永和路90巷" : "新北市永和區文化路144巷"}
+              placeholder="請輸入接送地址"
             />
           </label>
         </fieldset>
@@ -660,9 +690,9 @@ function SchoolCard({ school, classType, active, onOpenMap }) {
 }
 
 function HomeDistanceList({ school }) {
-  const entries = Object.entries(school.homeLabels);
+  const entries = Object.entries(school.homeLabels).filter(([key]) => school.homeConfigured[key]);
 
-  if (entries.length < 2) return null;
+  if (entries.length === 0) return null;
 
   return (
     <ul className="home-distance-list" aria-label="接送地址距離">

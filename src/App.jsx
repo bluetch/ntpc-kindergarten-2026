@@ -114,6 +114,7 @@ const enrichSchool = (school, activeHomes) => {
     zhongheKm,
     yongheKm,
     nearestKm: nearest?.distance ?? null,
+    nearestHomeKey: nearest?.key ?? null,
     nearestHome: nearest?.label ?? "自訂地址",
   };
 };
@@ -445,21 +446,36 @@ function SchoolCard({ school, classType, active, onMap }) {
           <strong>{Number.isFinite(vacancyCount) ? vacancyCount : "待查"}</strong>
           {classVacancyLabel(classType)}
         </span>
-        <span>
-          <strong>{formatDistance(school.nearestKm)}</strong>
-          最近 {school.nearestHome}
-        </span>
       </div>
+      <HomeDistanceList school={school} />
       <div className="card-actions">
         <a href={`#/kindergarten/${school.id}`}>詳細</a>
         <button type="button" onClick={onMap}>
           地圖
         </button>
-        <a href={googleMapUrl(school.address)} target="_blank" rel="noreferrer">
-          評價
-        </a>
       </div>
     </article>
+  );
+}
+
+function HomeDistanceList({ school }) {
+  const entries = Object.entries(school.homeLabels);
+
+  if (entries.length < 2) return null;
+
+  return (
+    <div className="home-distance-list" aria-label="接送地址距離">
+      {entries.map(([key, label]) => {
+        const distance = school.homeDistances[key];
+        const isNearest = key === school.nearestHomeKey && Number.isFinite(distance);
+        return (
+          <div className={isNearest ? "is-nearest" : ""} key={key}>
+            <span>{label}</span>
+            <strong>{formatDistance(distance)}</strong>
+          </div>
+        );
+      })}
+    </div>
   );
 }
 

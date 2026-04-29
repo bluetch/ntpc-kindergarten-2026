@@ -565,7 +565,7 @@ h1 {
 
 .metrics {
   display: grid;
-  grid-template-columns: repeat(2, 1fr);
+  grid-template-columns: 1fr;
   gap: 8px;
   margin: 8px 0;
 }
@@ -584,6 +584,40 @@ h1 {
   display: block;
   color: var(--ink);
   font-size: 22px;
+}
+
+.home-distance-list {
+  display: grid;
+  gap: 8px;
+  margin: 4px 0 0;
+}
+
+.home-distance-list div {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  min-height: 42px;
+  border: 2px solid var(--line);
+  border-radius: 12px;
+  background: white;
+  padding: 8px 10px;
+  color: var(--muted);
+  font-size: 13px;
+  font-weight: 900;
+}
+
+.home-distance-list div.is-nearest {
+  border-color: #3b352f;
+  background: var(--coral);
+  box-shadow: 3px 3px 0 #3b352f;
+  color: #3b352f;
+}
+
+.home-distance-list strong {
+  flex: 0 0 auto;
+  color: var(--ink);
+  font-size: 16px;
 }
 
 .card-actions button {

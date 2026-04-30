@@ -514,7 +514,7 @@ const rawKindergartens = [
       "錄取名單公告時間：115 年 6 月 10 日(星期三)下午 1 時，公告於本園門口公告欄及嘉樂幼兒園網站",
       "報到時間：1.正取生：115 年 6 月 13 日(星期六) 上午 9 時，親洽本園辦理，逾時未完成報到者視同放棄，本園得通知備取生依序遞補。請擇一幼兒園報到，俾教保資源有效運用。"
     ],
-    pdfPath: new URL('../docs/20260331095041_115學年度-新北市-私立嘉樂幼兒園-招生簡章.pdf', import.meta.url).href,
+    pdfPath: new URL('../docs/20260331095041_嘉樂幼兒園招生簡章.pdf', import.meta.url).href,
     punishRecord: [],
     officialUrl: "http://chialepreschool.com.tw/",
   },

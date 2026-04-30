@@ -8,6 +8,13 @@
       content="整理新北市中和區、永和區公立與非營利幼兒園缺額、距離、地圖與新手爸媽挑選指南。"
     />
     <title>中永和幼兒園抽籤小幫手</title>
+    <script>
+      const redirectedPath = window.sessionStorage.getItem("redirectPath");
+      if (redirectedPath) {
+        window.sessionStorage.removeItem("redirectPath");
+        window.history.replaceState(null, "", redirectedPath);
+      }
+    </script>
   </head>
   <body>
     <div id="root"></div>

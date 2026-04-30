@@ -1,7 +1,7 @@
 import { commonInfo } from "./data/kindergartens.js";
 import { useEffect } from "react";
+import Header from "./Header.jsx";
 import {
-  Header,
   classLabel,
   mapEmbedUrl,
   googleMapUrl,
@@ -13,6 +13,7 @@ import {
   getRatingItems,
   hasConfiguredAddress,
 } from "./App.jsx";
+import { Link } from "react-router-dom";
 
 export function DetailPage({ school, activeHomes }) {
   const feeInfo =
@@ -37,9 +38,9 @@ export function DetailPage({ school, activeHomes }) {
     <>
       <Header />
       <main className="detail-page">
-        <a className="back-link" href="#/">
+        <Link className="back-link" to="/">
           回清單
-        </a>
+        </Link>
         <section className="detail-hero">
           <div>
             <p className="eyebrow">

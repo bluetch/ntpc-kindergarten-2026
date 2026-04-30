@@ -36,13 +36,8 @@ export const commonInfo = {
 };
 
 export const sources = [
-  {
-    label: "新北市政府教育局：115 學年度招生新聞",
-    url: "https://www.ntpc.edu.tw/home.jsp?act=be4f48068b2b0031&dataserno=24aa11725dcefc8cf30fd2ec2ec4611b&id=d127e0ce0f4f407b&mserno=cdfca8f4e3eeb6df81e43a5af771c42f",
-  },
   { label: "新北市公立及非營利幼兒園招生網站", url: "https://kid123.ntpc.edu.tw/" },
   { label: "新北市幼兒教育資源網", url: "https://kidedu.ntpc.edu.tw/" },
-  { label: "中和區公所幼兒園通訊錄", url: "https://www.zhonghe.ntpc.gov.tw/home.jsp?id=626b55e7122050f7" },
   { label: "幼兒園資料站", url: "https://preschools.olc.tw/" },
   { label: "幼園通", url: "https://www.kindyinfo.com/" },
   { label: "幼幼安", url: "https://youn.com.tw/" }

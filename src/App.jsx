@@ -1,5 +1,8 @@
 import { useEffect, useMemo, useState } from "react";
+import { Routes, Route, useParams, Link } from "react-router-dom";
 import { DetailPage } from "./DetailPage.jsx";
+import Header from "./Header.jsx";
+import SourcesPage from "./SourcesPage.jsx";
 import {
   admissionTimeline,
   commonInfo,
@@ -307,15 +310,7 @@ const enrichSchool = (school, activeHomes) => {
   };
 };
 
-function useHashRoute() {
-  const [hash, setHash] = useState(() => window.location.hash || "#/");
-  useEffect(() => {
-    const onHash = () => setHash(window.location.hash || "#/");
-    window.addEventListener("hashchange", onHash);
-    return () => window.removeEventListener("hashchange", onHash);
-  }, []);
-  return hash;
-}
+// routing handled by react-router (BrowserRouter + Routes)
 
 function useCustomHomes() {
   const [customHomes, setCustomHomes] = useState(() => {
@@ -361,68 +356,34 @@ function useCustomHomes() {
 }
 
 function App() {
-  const hash = useHashRoute();
   const { customHomes, updateHome, resetHomes } = useCustomHomes();
   const activeHomes = useMemo(() => resolveHomes(customHomes), [customHomes]);
   const enrichedSchools = useMemo(
     () => kindergartens.map((school) => enrichSchool(school, activeHomes)),
     [activeHomes],
   );
-  if (hash === "#/guide") {
-    return <GuidePage />;
-  }
-  if (hash === "#/sources") {
-    return <SourcesPage />;
-  }
-  const detailMatch = hash.match(/^#\/kindergarten\/(.+)$/);
-  const detailSchool = detailMatch
-    ? enrichedSchools.find((item) => item.id === decodeURIComponent(detailMatch[1]))
-    : null;
-
   useEffect(() => {
-    if (!detailSchool) {
-      document.title = "中永和幼兒園清單";
-    }
-  }, [detailSchool, hash]);
+    document.title = "中永和幼兒園清單";
+  }, []);
 
-  if (detailSchool) {
-    return <DetailPage school={detailSchool} activeHomes={activeHomes} />;
+  function DetailRoute() {
+    const { id } = useParams();
+    const detailSchool = enrichedSchools.find((item) => item.id === id);
+    return detailSchool ? <DetailPage school={detailSchool} activeHomes={activeHomes} /> : <ListPage activeHomes={activeHomes} customHomes={customHomes} enrichedSchools={enrichedSchools} resetHomes={resetHomes} updateHome={updateHome} />;
   }
 
   return (
-    <ListPage
-      activeHomes={activeHomes}
-      customHomes={customHomes}
-      enrichedSchools={enrichedSchools}
-      resetHomes={resetHomes}
-      updateHome={updateHome}
-    />
+    <Routes>
+      <Route path="/" element={<ListPage activeHomes={activeHomes} customHomes={customHomes} enrichedSchools={enrichedSchools} resetHomes={resetHomes} updateHome={updateHome} />} />
+      <Route path="/guide" element={<GuidePage />} />
+      <Route path="/sources" element={<SourcesPage />} />
+      <Route path="/kindergarten/:id" element={<DetailRoute />} />
+      <Route path="*" element={<ListPage activeHomes={activeHomes} customHomes={customHomes} enrichedSchools={enrichedSchools} resetHomes={resetHomes} updateHome={updateHome} />} />
+    </Routes>
   );
 }
 
-export function Header() {
-  return (
-    <header className="site-header">
-      <a className="brand" href="#/" aria-label="回清單首頁">
-        <span className="brand-mark">幼</span>
-        <span>
-          <strong>中永和幼兒園抽籤小幫手</strong>
-          <small>給忙碌新手爸媽的暖暖整理包</small>
-        </span>
-      </a>
-      <nav>
-        <a href="#list">清單</a>
-        <a href="#/sources">資料來源</a>
-        <a className="secondary-action" href="https://kid123.ntpc.edu.tw/" target="_blank" rel="noreferrer">
-          官方招生網站
-        </a>
-        <a href="https://github.com/bluetch/ntpc-kindergarten-2026" target="_blank" rel="noreferrer">
-          GitHub
-        </a>
-      </nav>
-    </header>
-  );
-}
+// Header is provided by src/Header.jsx
 
 function ListPage({ activeHomes, customHomes, enrichedSchools, resetHomes, updateHome }) {
   const [query, setQuery] = useState("");
@@ -755,8 +716,8 @@ function SchoolCard({ school, classType, active, onOpenMap }) {
       </div>
       <HomeDistanceList school={school} />
       <div className="card-actions">
-        <a
-          href={`#/kindergarten/${school.id}`}
+        <Link
+          to={`/kindergarten/${school.id}`}
           onClick={(event) => {
             if (isDisabled) {
               event.preventDefault();
@@ -767,7 +728,7 @@ function SchoolCard({ school, classType, active, onOpenMap }) {
           tabIndex={isDisabled ? -1 : undefined}
         >
           詳細
-        </a>
+        </Link>
         <button
           disabled={isDisabled}
           type="button"
@@ -810,9 +771,9 @@ function GuidePage() {
     <>
       <Header />
       <main className="detail-page guide-page">
-        <a className="back-link" href="#/">
+        <Link className="back-link" to="/">
           回幼兒園清單
-        </a>
+        </Link>
         <section className="detail-hero">
           <div>
             <p className="eyebrow">幼兒園挑選指南</p>
@@ -821,7 +782,7 @@ function GuidePage() {
           </div>
           <div className="detail-score">
             <strong>Guide</strong>
-            <span>#/guide</span>
+            <span>/guide</span>
           </div>
         </section>
 
@@ -920,32 +881,6 @@ function GuidePage() {
               </div>
             </div>
           </InfoBlock>
-        </section>
-      </main>
-    </>
-  );
-}
-
-function SourcesPage() {
-  return (
-    <>
-      <Header />
-      <main className="guide">
-        <a className="back-link" href="#/">
-          回清單
-        </a>
-        <section className="info-block">
-          <h2>資料來源</h2>
-          <div className="sources">
-            <p>本專案幼兒園資料與相關資訊，主要參考以下來源彙整：</p>
-            <div style={{ marginTop: '14px' }}>
-              {sources.map((source) => (
-                <a key={source.url} href={source.url} target="_blank" rel="noreferrer">
-                  {source.label}
-                </a>
-              ))}
-            </div>
-          </div>
         </section>
       </main>
     </>

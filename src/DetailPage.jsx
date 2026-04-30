@@ -1,4 +1,5 @@
 import { commonInfo } from "./data/kindergartens.js";
+import { useEffect } from "react";
 import {
   Header,
   classLabel,
@@ -24,6 +25,14 @@ export function DetailPage({ school, activeHomes }) {
   const commentItems = ratingItems.filter((item) => item.comment);
   const averageRating = getAverageRating(school);
 
+  useEffect(() => {
+    const prev = document.title;
+    document.title = `${school.name} — 幼兒園資料`;
+    return () => {
+      document.title = prev;
+    };
+  }, [school.name]);
+
   return (
     <>
       <Header />
@@ -37,9 +46,28 @@ export function DetailPage({ school, activeHomes }) {
               {school.district} · {school.type}
             </p>
             <h1>{school.name}</h1>
+            {school.pdfPath ? (
+              <a href={school.pdfPath} target="_blank" rel="noreferrer" className="primary-action">
+                招生簡章
+              </a>
+            ) : (
+              "待補"
+            )}
+            {school.facebookUrl && (
+              <a href={school.facebookUrl} target="_blank" rel="noreferrer" className="secondary-action">
+                臉書專頁
+              </a>
+            )}
+            {school.officialUrl && (
+              <a href={school.officialUrl} target="_blank" rel="noreferrer" className="secondary-action">
+                官方網站
+              </a>
+            )}
           </div>
           <div className="detail-score">
-            <strong>{Number.isFinite(school.vacancies) ? school.vacancies : "待查"}</strong>
+            <strong>
+              {Number.isFinite(school.vacancies) ? school.vacancies : "待查"}
+            </strong>
             <span>總缺額</span>
           </div>
         </section>
@@ -70,7 +98,10 @@ export function DetailPage({ school, activeHomes }) {
               </div>
               <div className="rating-grid is-detail">
                 {ratingItems.map((item) => (
-                  <span className={`rating-chip ${item.className}`} key={item.label}>
+                  <span
+                    className={`rating-chip ${item.className}`}
+                    key={item.label}
+                  >
                     <em>{item.label}</em>
                     <strong>{formatRateValue(item.rate)}</strong>
                   </span>
@@ -96,6 +127,12 @@ export function DetailPage({ school, activeHomes }) {
               </ul>
             </InfoBlock>
 
+            <InfoBlock title="費用">
+              <ul className="plain-list">
+                {school.cost ? school.cost.map((cost) => <li key={cost}>{cost}</li>) : "待補"}
+              </ul>
+            </InfoBlock>
+
             <InfoBlock title="爸媽實地觀察重點">
               <ul className="check-list">
                 <li>老師跟孩子說話的語氣：是否蹲下來、能等待孩子回答。</li>
@@ -118,8 +155,17 @@ export function DetailPage({ school, activeHomes }) {
           </div>
 
           <aside className="detail-side">
-            <iframe title={`${school.name} Google Map`} src={mapEmbedUrl(school)} loading="lazy" />
-            <a className="primary-action full" href={googleMapUrl(school)} target="_blank" rel="noreferrer">
+            <iframe
+              title={`${school.name} Google Map`}
+              src={mapEmbedUrl(school)}
+              loading="lazy"
+            />
+            <a
+              className="primary-action full"
+              href={googleMapUrl(school)}
+              target="_blank"
+              rel="noreferrer"
+            >
               Google Maps
             </a>
             {hasConfiguredAddress(activeHomes.homeA) && (
@@ -129,7 +175,8 @@ export function DetailPage({ school, activeHomes }) {
                 target="_blank"
                 rel="noreferrer"
               >
-                從 {activeHomes.homeA.label} 導航 ({formatDistance(school.homeDistances.homeA)})
+                從 {activeHomes.homeA.label} 導航 (
+                {formatDistance(school.homeDistances.homeA)})
               </a>
             )}
             {hasConfiguredAddress(activeHomes.homeB) && (
@@ -139,7 +186,8 @@ export function DetailPage({ school, activeHomes }) {
                 target="_blank"
                 rel="noreferrer"
               >
-                從 {activeHomes.homeB.label} 導航 ({formatDistance(school.homeDistances.homeB)})
+                從 {activeHomes.homeB.label} 導航 (
+                {formatDistance(school.homeDistances.homeB)})
               </a>
             )}
           </aside>
@@ -171,7 +219,11 @@ function CommuteCard({ home, school, distance }) {
       <h3>{home.label}</h3>
       <strong>{formatDistance(distance)}</strong>
       {/* <p>{walkHint}</p> */}
-      <a href={directionsUrl(home.address, school)} target="_blank" rel="noreferrer">
+      <a
+        href={directionsUrl(home.address, school)}
+        target="_blank"
+        rel="noreferrer"
+      >
         開路線
       </a>
     </article>

@@ -1023,6 +1023,10 @@ h1 {
   font-weight: 800;
 }
 
+.detail-hero .primary-action {
+  margin-top: 18px;
+}
+
 .detail-score {
   display: grid;
   place-items: center;

@@ -379,6 +379,12 @@ function App() {
     ? enrichedSchools.find((item) => item.id === decodeURIComponent(detailMatch[1]))
     : null;
 
+  useEffect(() => {
+    if (!detailSchool) {
+      document.title = "中永和幼兒園清單";
+    }
+  }, [detailSchool, hash]);
+
   if (detailSchool) {
     return <DetailPage school={detailSchool} activeHomes={activeHomes} />;
   }

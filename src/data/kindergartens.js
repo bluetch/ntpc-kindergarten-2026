@@ -485,8 +485,10 @@ const rawKindergartens = [
     phone: "(02)89218252",
     lat: null,
     lng: null,
-    notes: ["113-115 符合準公共幼兒園"],
+    notes: ["5月8-12日現場登記上午10時至下午16時，5月13日下午4點臉書公布 https://www.facebook.com/profile.php?id=100063717414205"],
+    pdfPath: new URL('../docs/20260312082817_翰尼永和招生簡章.pdf', import.meta.url).href,
     punishRecord: [],
+    facebookUrl: "https://www.facebook.com/profile.php?id=100063717414205",
   },
   {
     id: "yonghe-jiale-quasi",
@@ -507,8 +509,14 @@ const rawKindergartens = [
     phone: "(02)29255484",
     lat: null,
     lng: null,
-    notes: ["113-115 符合準公共幼兒園", "核定人數 90 人", "114 學年度收費約 NT$14,240/月"],
+    notes: [
+      "預約參觀時間：115 年 6 月 3 日(星期三)上午 9 時 30 分至 6 月 8 日(星期一)上午 12 時，請洽張園長登記(電話：02-29255484)。",
+      "錄取名單公告時間：115 年 6 月 10 日(星期三)下午 1 時，公告於本園門口公告欄及嘉樂幼兒園網站",
+      "報到時間：1.正取生：115 年 6 月 13 日(星期六) 上午 9 時，親洽本園辦理，逾時未完成報到者視同放棄，本園得通知備取生依序遞補。請擇一幼兒園報到，俾教保資源有效運用。"
+    ],
+    pdfPath: new URL('../docs/20260331095041_115學年度-新北市-私立嘉樂幼兒園-招生簡章.pdf', import.meta.url).href,
     punishRecord: [],
+    officialUrl: "http://chialepreschool.com.tw/",
   },
   {
     id: "yonghe-qiaohe-quasi",
@@ -529,7 +537,7 @@ const rawKindergartens = [
     phone: "(02)29214668",
     lat: null,
     lng: null,
-    notes: ["113-115 符合準公共幼兒園", "核定人數 45 人", "114 學年度收費約 NT$15,628/月"],
+    notes: [],
     punishRecord: [{ summary: "裁罰紀錄 1 筆，詳情請以幼園通最新頁面為準" }],
   },
   {
@@ -551,7 +559,15 @@ const rawKindergartens = [
     phone: "(02)89253102",
     lat: null,
     lng: null,
-    notes: ["113-115 符合準公共幼兒園"],
+    notes: [
+      "預約參觀時間：115 年 4 月 10 日(星期五)至額滿為止",
+      "登記時間：第二階段(一般生)：115 年 5 月 11 日(星期一)至 115 年 5 月 16 日(星期六)上午 10 時至下午 18 時，於本園辦理登記。",
+      "錄取名單公告時間：115 年 5 月 20 日(星期三)，下午 16 時公告顧於本園校門公佈欄",
+      "報到時間： 正取生：115 年 5 月 21 日(星期四)上午 10 時至下午 18 時，親洽本園辦理",
+      "註冊時間：115 年 6 月 5 日(星期五)，上午 10 時至下午 18 時。",
+      "開學日期：115 年 8 月 3 日(星期一)。"
+    ],
+    pdfPath: new URL('../docs/20260331143518_115文揚招生簡章20260331.pdf', import.meta.url).href,
     punishRecord: [],
   },
   {
@@ -595,7 +611,12 @@ const rawKindergartens = [
     phone: "(02)89217855",
     lat: null,
     lng: null,
-    notes: ["113-115 符合準公共幼兒園", "核定人數 57 人", "114 學年度收費約 NT$16,104/月"],
+    notes: [
+      "預約參觀時間：115 年 5 月 16 日(星期六)上午 9 時 30 分至下午 3 時，請洽侯主任登記(電話：02-8921-7855)",
+      "登記時間：第二階段(一般生)：115 年 5 月 12 日至 5 月 16 日上午 9 時 30 分至上午 11 時 30 分，於本園所辦理登記或掛號郵寄",
+      "錄取名單公告時間：115 年 5 月 19 日(星期二)，下午 3 時，公告於本園大門口。"
+    ],
+    pdfPath: new URL('../docs/20260313134925_安迪生幼兒園招生簡章.pdf', import.meta.url).href,
     punishRecord: [],
   },
   {
@@ -617,14 +638,20 @@ const rawKindergartens = [
     phone: "(02)29218093",
     lat: null,
     lng: null,
-    notes: ["113-115 符合準公共幼兒園", "核定人數 71 人", "114 學年度收費約 NT$12,276/月"],
+    notes: [
+      "登記時間: 第二階段(一般生)：115年5月4日~5月15日上午9:30至下午4:00辦理登記",
+      "錄取名單公告時間：115年5月16日(星期六)，下午2時公告於本園布告欄及中中幼兒園 FACEBOOK 粉絲頁網站",
+      "報到時間：1. 正取生：115年5月18日(星期一) 上午10時至下午2時，親洽本園辦理"
+    ],
+    pdfPath: new URL('../docs/20260401111417_中中招生簡章.pdf', import.meta.url).href,
     punishRecord: [],
+    facebookUrl: "https://www.facebook.com/p/%E4%B8%AD%E4%B8%AD%E5%B9%BC%E5%85%92%E5%9C%92-100057272956737",
   },
   {
     id: "yonghe-littlesun-quasi",
     code: "KINDYINFO",
     district: "永和區",
-    name: "小太陽教育事業股份有限公司附設新北市私立小太陽美學幼兒園",
+    name: "小太陽美學幼兒園",
     type: "準公共",
     kenRate: null,
     kellyRate: null,
@@ -634,13 +661,27 @@ const rawKindergartens = [
     chatgptComment: "中性：費用偏高，除非很喜歡教學特色否則不優先",
     geminiRate: 4,
     geminiComment: "推薦：無裁罰紀錄且具美學特色，適合預算較充足的家庭。",
-    classes: [{ name: "3-5歲班", vacancies: 24 }],
+    classes: [{ name: "3-5歲班", vacancies: 50 }],
     address: "新北市永和區仁愛路282巷6號1樓、282巷10弄6號1樓",
     phone: "(02)86605678",
     lat: null,
     lng: null,
-    notes: ["114-115 符合準公共幼兒園", "核定人數 93 人", "114 學年度收費約 NT$18,067/月"],
+    notes: [
+      "預約參觀時間：115年5月11日(星期一)上午10時至下午16時，請洽草莓老師登記(園所電話:8660-5678)",
+      "登記時間: 第二階段(一般生)：線上登記-115年5月11日(星期一)上午12時至115年5 月16日(星期六)下午14時，現場登記-園所大廳區辦理登記時間:115年5月11日(星期一)至115年5月16日(星期六)上午10點-下午1點； 電子信箱登記-本園電子信箱whartensmallsun2@yahoo.com.tw",
+      "錄取名單公告時間：115年5月20日下午14時，公告於本園大門口佈告欄及電子郵件通知",
+      "報到時間： 正取生：114年5月21日(星期四)上午10時至下午6時。親洽本園辦理"
+    ],
+    pdfPath: new URL('../docs/20260408125736_小太陽招生簡章.pdf', import.meta.url).href,
     punishRecord: [],
+    facebookUrl: "https://www.facebook.com/profile.php?id=100063976325912",
+    cost: [
+      "第一胎：3000元/月、第二胎：2000元/月、第三胎：1000元/月",
+      "晚托：2640元 (5點~6:30，單次120元)",
+      "保險：233元/半年",
+      "其他：夏運動服500元、冬運動服500元、室內鞋280元、餐具組700元、書包550元、制服500元",
+      "暑假放五天假"
+    ]
   },
   {
     id: "yonghe-smilesun-quasi",
@@ -1134,6 +1175,7 @@ const rawKindergartens = [
     lng: 121.5002,
     notes: ["離中和家近"],
     punishRecord: [],
+    officialUrl: "https://www.3-3life.org.tw/index.php?m=Yzy&a=aInfo&aId=2537",
   },
 ];
 

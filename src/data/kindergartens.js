@@ -1177,6 +1177,36 @@ const rawKindergartens = [
     punishRecord: [],
     officialUrl: "https://www.3-3life.org.tw/index.php?m=Yzy&a=aInfo&aId=2537",
   },
+  {
+    id: "zhonghe-ananbao-quasi",
+    code: "KINDYINFO",
+    district: "中和區",
+    name: "新北市私立安安堡幼兒園",
+    type: "準公共",
+    kenRate: null,
+    kellyRate: null,
+    claudeRate: null,
+    claudeComment: null,
+    chatgptRate: null,
+    chatgptComment: null,
+    geminiRate: null,
+    geminiComment: null,
+    mapUrl: null,
+    classes: [{ name: "3-5歲班", vacancies: 6 }],
+    address: "新北市中和區橋和路298號1、2樓",
+    phone: "(02)22408376",
+    lat: null,
+    lng: null,
+    notes: [
+      "預約參觀時間：115 年 5 月 5 日(星期二)上午 10 時至 11 時，請洽園內老師登記(電話：02-22408376)，請於 4/28～4/29 來電預約參觀時間",
+      "登記時間：第二階段(一般生)：115 年 5 月 12 日(星期二)～5 月 16 日(六)下午1:30～4:30，採網路報名登記",
+      "錄取名單公告時間：115 年 5 月 21 日(星期四)，下午 16:00 時公告於本園門口公佈欄及安安堡幼兒園 FB",
+      "報到時間： 正取生：115 年 6 月 2 日(星期二) 上午 10:00～中午 12：00，親洽本園辦理"
+    ],
+    pdfPath: new URL('../docs/20260324172915_安安堡幼兒園.pdf', import.meta.url).href,
+    punishRecord: [],
+    facebookUrl: "https://www.facebook.com/p/%E6%96%B0%E5%8C%97%E5%B8%82%E7%A7%81%E7%AB%8B%E5%AE%89%E5%AE%89%E5%A0%A1%E5%B9%BC%E5%85%92%E5%9C%92-100063967518533/",
+  },
 ];
 
 export const kindergartens = rawKindergartens;
